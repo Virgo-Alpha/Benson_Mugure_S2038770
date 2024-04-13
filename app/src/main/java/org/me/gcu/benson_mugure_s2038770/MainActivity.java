@@ -14,6 +14,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+// Add import statements
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -63,63 +66,60 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         {
             url = aurl;
         }
+
+        // ! Pullparse the XML data from the BBC Weather RSS feed
         @Override
-        public void run()
-        {
+        public void run() {
+            try {
+                URL aurl = new URL(url);
+                URLConnection yc = aurl.openConnection();
+                BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
 
-            URL aurl;
-            URLConnection yc;
-            BufferedReader in = null;
-            String inputLine = "";
+                // Initialize XML parser
+                XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                XmlPullParser parser = factory.newPullParser();
+                parser.setInput(in);
 
+                // Variables to store forecast information
+                String todayForecast = "";
+                String tomorrowForecast = "";
+                String dayAfterTomorrowForecast = "";
 
-            Log.e("MyTag","in run");
-
-            try
-            {
-                Log.e("MyTag","in try");
-                aurl = new URL(url);
-                yc = aurl.openConnection();
-                in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-                while ((inputLine = in.readLine()) != null)
-                {
-                    result = result + inputLine;
-                    Log.e("MyTag",inputLine);
-
+                // Start parsing
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
+                        String title = parser.nextText();
+                        if (title.startsWith("Today:")) {
+                            todayForecast = title;
+                        } else if (title.startsWith("Sunday:")) {
+                            tomorrowForecast = title;
+                        } else if (title.startsWith("Monday:")) {
+                            dayAfterTomorrowForecast = title;
+                        }
+                    }
+                    eventType = parser.next();
                 }
                 in.close();
+
+                // Format and display the forecast information in the UI
+                final String formattedForecast = "Today: " + todayForecast.substring(todayForecast.indexOf(":") + 2) + "\n"
+                        + "Tomorrow: " + tomorrowForecast.substring(tomorrowForecast.indexOf(":") + 2) + "\n"
+                        + "Day after Tomorrow: " + dayAfterTomorrowForecast.substring(dayAfterTomorrowForecast.indexOf(":") + 2);
+
+                // Update UI
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    public void run() {
+                        Log.d("UI thread", "I am the UI thread");
+                        rawDataDisplay.setText(formattedForecast);
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("MyTag", "Error occurred: " + e.getMessage());
             }
-            catch (IOException ae)
-            {
-                Log.e("MyTag", "ioexception");
-            }
-
-            //Get rid of the first tag <?xml version="1.0" encoding="utf-8"?>
-            int i = result.indexOf(">");
-            result = result.substring(i+1);
-            //Get rid of the 2nd tag <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-            i = result.indexOf(">");
-            result = result.substring(i+1);
-            Log.e("MyTag - cleaned",result);
-
-
-			//
-            // Now that you have the xml data you can parse it			
-			//
-			
-			
-            // Now update the TextView to display raw XML data
-            // Probably not the best way to update TextView
-            // but we are just getting started !
-
-            MainActivity.this.runOnUiThread(new Runnable()
-            {
-                public void run() {
-                    Log.d("UI thread", "I am the UI thread");
-                    rawDataDisplay.setText(result);
-                }
-            });
         }
+
 
     }
 
