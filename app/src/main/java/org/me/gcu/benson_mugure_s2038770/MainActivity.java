@@ -15,112 +15,146 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener
-{
-    private TextView rawDataDisplay;
-    private Button startButton;
-    private String result;
-    private String url1="";
-    private String urlSource="https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/2643123";
+public class MainActivity extends AppCompatActivity implements OnClickListener {
+    private TextView forecastDisplay;
+    private Button prevButton;
+    private Button nextButton;
+
+    private HashMap<String, String> locationCodes;
+    private String currentLocation;
+    private String[] forecastData;
+    private int currentLocationIndex;
+    private List<String> locations;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Set up the raw links to the graphical components
-        rawDataDisplay = (TextView)findViewById(R.id.rawDataDisplay);
-        startButton = (Button)findViewById(R.id.startButton);
-        startButton.setOnClickListener(this);
 
-        // More Code goes here
+        // Initialize UI components
+        forecastDisplay = findViewById(R.id.forecastDisplay);
+        prevButton = findViewById(R.id.prevButton);
+        nextButton = findViewById(R.id.nextButton);
+        prevButton.setOnClickListener(this);
+        nextButton.setOnClickListener(this);
+
+        // Initialize location codes
+        locationCodes = new HashMap<>();
+        locationCodes.put("Glasgow", "2648579");
+        locationCodes.put("London", "2643743");
+        locationCodes.put("NewYork", "5128581");
+        locationCodes.put("Oman", "287286");
+        locationCodes.put("Mauritius", "934154");
+        locationCodes.put("Bangladesh", "1185241");
+
+        // Initialize locations
+        locations = new ArrayList<>(locationCodes.keySet());
+
+        // Set default location and index
+        currentLocation = locations.get(0);
+        currentLocationIndex = 0;
+
+        // Fetch and display forecast data for the default location
+        fetchAndDisplayForecastData(currentLocation);
     }
 
-    public void onClick(View aview)
-    {
-        startProgress();
-    }
-
-    public void startProgress()
-    {
-        // Run network access on a separate thread;
-        new Thread(new Task(urlSource)).start();
-    } //
-
-    // Need separate thread to access the internet resource over network
-    // Other neater solutions should be adopted in later iterations.
-    private class Task implements Runnable
-    {
-        private String url;
-
-        public Task(String aurl)
-        {
-            url = aurl;
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.prevButton) {
+            currentLocationIndex = (currentLocationIndex - 1 + locations.size()) % locations.size();
+            currentLocation = locations.get(currentLocationIndex);
+            fetchAndDisplayForecastData(currentLocation);
+        } else if (v.getId() == R.id.nextButton) {
+            currentLocationIndex = (currentLocationIndex + 1) % locations.size();
+            currentLocation = locations.get(currentLocationIndex);
+            fetchAndDisplayForecastData(currentLocation);
         }
-        @Override
-        public void run()
-        {
-
-            URL aurl;
-            URLConnection yc;
-            BufferedReader in = null;
-            String inputLine = "";
-
-
-            Log.e("MyTag","in run");
-
-            try
-            {
-                Log.e("MyTag","in try");
-                aurl = new URL(url);
-                yc = aurl.openConnection();
-                in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-                while ((inputLine = in.readLine()) != null)
-                {
-                    result = result + inputLine;
-                    Log.e("MyTag",inputLine);
-
-                }
-                in.close();
-            }
-            catch (IOException ae)
-            {
-                Log.e("MyTag", "ioexception");
-            }
-
-            //Get rid of the first tag <?xml version="1.0" encoding="utf-8"?>
-            int i = result.indexOf(">");
-            result = result.substring(i+1);
-            //Get rid of the 2nd tag <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-            i = result.indexOf(">");
-            result = result.substring(i+1);
-            Log.e("MyTag - cleaned",result);
-
-
-            //
-            // Now that you have the xml data you can parse it
-            //
-
-
-            // Now update the TextView to display raw XML data
-            // Probably not the best way to update TextView
-            // but we are just getting started !
-
-            MainActivity.this.runOnUiThread(new Runnable()
-            {
-                public void run() {
-                    Log.d("UI thread", "I am the UI thread");
-                    rawDataDisplay.setText(result);
-                }
-            });
-        }
-
     }
 
+    private void fetchAndDisplayForecastData(String location) {
+        String locationCode = locationCodes.get(location);
+        String url = constructForecastUrl(locationCode);
+        new Thread(() -> {
+            String data = fetchForecastData(url);
+            forecastData = parseForecastData(data);
+            runOnUiThread(this::displayForecastData);
+        }).start();
+    }
+
+    private String constructForecastUrl(String locationCode) {
+        return "https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/" + locationCode;
+    }
+
+    private String fetchForecastData(String url) {
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            InputStream inputStream = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+            reader.close();
+            return result.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    private String[] parseForecastData(String data) {
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new java.io.StringReader(data));
+
+            String[] forecast = new String[3];
+            int eventType = parser.getEventType();
+            int dayIndex = 0;
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
+                    String title = parser.nextText().trim();
+                    // Check if title represents a forecast for a day
+                    if (title.contains(":")) {
+                        forecast[dayIndex++] = title;
+                    }
+                }
+                eventType = parser.next();
+            }
+
+            return forecast;
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
+            return new String[0];
+        }
+    }
+
+    private void displayForecastData() {
+        StringBuilder displayText = new StringBuilder();
+        for (String forecast : forecastData) {
+            displayText.append(forecast).append("\n");
+        }
+        forecastDisplay.setText(displayText.toString());
+
+        // Set the text of the location display TextView
+        TextView locationDisplay = findViewById(R.id.locationDisplay);
+        locationDisplay.setText("Location: " + currentLocation);
+        locationDisplay.setVisibility(View.VISIBLE); // Show the TextView
+    }
 }
