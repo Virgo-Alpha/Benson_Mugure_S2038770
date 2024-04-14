@@ -8,6 +8,8 @@
     <string name="previous">Previous</string>
     <string name="forecast">Forecast</string>
     <string name="location">Location: </string>
+    <string name="separation">Now begins the Latest Observations</string>
+    <string name="observation">Latest Observations: </string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

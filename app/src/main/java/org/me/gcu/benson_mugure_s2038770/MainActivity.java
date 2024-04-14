@@ -31,12 +31,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView forecastDisplay;
+    private TextView observationDisplay; // Add TextView for observation display
     private Button prevButton;
     private Button nextButton;
+    private TextView locationDisplay;
 
     private HashMap<String, String> locationCodes;
     private String currentLocation;
     private String[] forecastData;
+    private String observationData; // Store observation data as a String
+
     private int currentLocationIndex;
     private List<String> locations;
 
@@ -47,8 +51,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Initialize UI components
         forecastDisplay = findViewById(R.id.forecastDisplay);
+        observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
+        locationDisplay = findViewById(R.id.locationDisplay);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
 
@@ -70,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Fetch and display forecast data for the default location
         fetchAndDisplayForecastData(currentLocation);
+
+        // Fetch and display observation data
+        fetchAndDisplayObservationData(currentLocation);
     }
 
     @Override
@@ -78,10 +87,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             currentLocationIndex = (currentLocationIndex - 1 + locations.size()) % locations.size();
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
+            fetchAndDisplayObservationData(currentLocation);
         } else if (v.getId() == R.id.nextButton) {
             currentLocationIndex = (currentLocationIndex + 1) % locations.size();
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
+            fetchAndDisplayObservationData(currentLocation);
         }
     }
 
@@ -89,9 +100,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         String locationCode = locationCodes.get(location);
         String url = constructForecastUrl(locationCode);
         new Thread(() -> {
-            String data = fetchForecastData(url);
+            String data = fetchWeatherData(url);
             forecastData = parseForecastData(data);
             runOnUiThread(this::displayForecastData);
+        }).start();
+    }
+
+    private void fetchAndDisplayObservationData(String location) {
+        String locationCode = locationCodes.get(location);
+        String url = "https://weather-broker-cdn.api.bbci.co.uk/en/observation/rss/" + locationCode;
+        new Thread(() -> {
+            String data = fetchWeatherData(url);
+            observationData = parseObservationData(data);
+            runOnUiThread(this::displayObservationData);
         }).start();
     }
 
@@ -99,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return "https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/" + locationCode;
     }
 
-    private String fetchForecastData(String url) {
+    private String fetchWeatherData(String url) {
         try {
             URLConnection connection = new URL(url).openConnection();
             InputStream inputStream = connection.getInputStream();
@@ -112,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             reader.close();
             return result.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("MainActivity", "Error fetching Weather data", e); // Log the error
             return "";
         }
     }
@@ -140,8 +161,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
             return forecast;
         } catch (XmlPullParserException | IOException e) {
-            e.printStackTrace();
+            Log.e("MainActivity", "Error parsing forecast data", e); // Log the error
             return new String[0];
+        }
+    }
+
+    private String parseObservationData(String data) {
+        try {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = factory.newPullParser();
+            parser.setInput(new java.io.StringReader(data));
+
+            StringBuilder observation = new StringBuilder();
+            int eventType = parser.getEventType();
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
+                    String title = parser.nextText().trim();
+                    observation.append(title).append("\n");
+                }
+                eventType = parser.next();
+            }
+
+            return observation.toString();
+        } catch (XmlPullParserException | IOException e) {
+            Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
+            return "";
         }
     }
 
@@ -151,10 +196,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             displayText.append(forecast).append("\n");
         }
         forecastDisplay.setText(displayText.toString());
-
-        // Set the text of the location display TextView
-        TextView locationDisplay = findViewById(R.id.locationDisplay);
         locationDisplay.setText(currentLocation);
-        locationDisplay.setVisibility(View.VISIBLE); // Show the TextView
+        locationDisplay.setVisibility(View.VISIBLE); // Show the location display TextView
+    }
+
+    private void displayObservationData() {
+        observationDisplay.setText(observationData);
+        observationDisplay.setVisibility(View.VISIBLE); // Show the observation display TextView
     }
 }

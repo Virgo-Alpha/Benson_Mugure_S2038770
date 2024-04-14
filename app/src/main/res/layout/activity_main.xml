@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:padding="16dp"
     tools:context=".MainActivity">
-<!-- 
-    <TextView
-        android:id="@+id/locationDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/location"
-        android:textSize="20sp"
-        android:layout_centerHorizontal="true"/> -->
 
     <TextView
         android:id="@+id/locationDisplay"
@@ -33,11 +25,30 @@
         android:text="@string/forecast"
         android:textSize="18sp" />
 
+    <!-- Add separation text below -->
+    <TextView
+        android:id="@+id/separationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/forecastDisplay"
+        android:layout_marginTop="16dp"
+        android:text="@string/separation"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/observationDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separationText"
+        android:layout_marginTop="16dp"
+        android:text="@string/observation"
+        android:textSize="18sp" />
+
     <Button
         android:id="@+id/prevButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/forecastDisplay"
+        android:layout_below="@id/observationDisplay"
         android:layout_marginTop="16dp"
         android:text="@string/previous" />
 
@@ -45,7 +56,7 @@
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/forecastDisplay"
+        android:layout_below="@id/observationDisplay"
         android:layout_marginTop="16dp"
         android:layout_alignParentEnd="true"
         android:text="@string/next" />
