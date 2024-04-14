@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Set the text of the location display TextView
         TextView locationDisplay = findViewById(R.id.locationDisplay);
-        locationDisplay.setText("Location: " + currentLocation);
+        locationDisplay.setText(currentLocation);
         locationDisplay.setVisibility(View.VISIBLE); // Show the TextView
     }
 }
