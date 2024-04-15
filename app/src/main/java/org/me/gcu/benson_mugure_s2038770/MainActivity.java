@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
@@ -101,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         String url = constructForecastUrl(locationCode);
         new Thread(() -> {
             String data = fetchWeatherData(url);
-            forecastData = parseForecastData(data);
-            runOnUiThread(this::displayForecastData);
+            Map<String, Object> forecastData = parseForecastData(data);
+            runOnUiThread(() -> displayForecastData(forecastData));
         }).start();
-    }
+    }    
 
     private void fetchAndDisplayObservationData(String location) {
         String locationCode = locationCodes.get(location);
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         new Thread(() -> {
             String data = fetchWeatherData(url);
             observationData = parseObservationData(data);
-            runOnUiThread(this::displayObservationData);
+            runOnUiThread(() -> displayObservationData());
         }).start();
     }
 
@@ -138,67 +139,131 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    private String[] parseForecastData(String data) {
+    // Loop over the channel
+    // Ignore the first title and the first description
+    // Get the second title from inside the image tag then loop over the item tags, extracting the title and description for each item as the 2 are linked together; also get at least one georss:point tag's data and store it
+    // Find a suitable way to store the extracted info. The georss:point tag's data is the lat-lon data, i.e., map data. The second title gives the location, the other titles give forecasts for the 3 days and their corresponding descriptions give deeper forecasts. As such, I suggest storing them as 3: Location; a list of 3 dictionaries for the 3 days each with the keys for title and description; as well as the map data
+    // - Perhaps get the date
+    private Map<String, Object> parseForecastData(String data) {
+        Map<String, Object> forecastData = new HashMap<>();
+    
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new java.io.StringReader(data));
-
-            String[] forecast = new String[3];
+    
             int eventType = parser.getEventType();
-            int dayIndex = 0;
-
+            String location = null;
+            List<Map<String, String>> forecasts = new ArrayList<>();
+            String georssPoint = null;
+    
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
-                    String title = parser.nextText().trim();
-                    // Check if title represents a forecast for a day
-                    if (title.contains(":")) {
-                        forecast[dayIndex++] = title;
+                if (eventType == XmlPullParser.START_TAG) {
+                    String tagName = parser.getName();
+                    if (tagName.equals("title")) {
+                        if (location == null) {
+                            location = parser.nextText().trim();
+                        } else {
+                            String title = parser.nextText().trim();
+                            // Assuming title and description are linked together for each item
+                            Map<String, String> forecast = new HashMap<>();
+                            forecast.put("title", title);
+                            forecasts.add(forecast);
+                        }
+                    } else if (tagName.equals("description") && location != null) {
+                            String description = parser.nextText().trim();
+                            // Add description to the last forecast in the list
+                            if (!forecasts.isEmpty()) {
+                                forecasts.get(forecasts.size() - 1).put("description", description);
+                        }
+                    } else if (tagName.equals("georss:point") && georssPoint == null) {
+                        georssPoint = parser.nextText().trim();
                     }
                 }
+    
                 eventType = parser.next();
             }
-
-            return forecast;
+    
+            // Store the extracted information
+            forecastData.put("location", location);
+            forecastData.put("forecasts", forecasts);
+            forecastData.put("georssPoint", georssPoint);
+    
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing forecast data", e); // Log the error
-            return new String[0];
         }
-    }
+    
+        return forecastData;
+    }    
 
     private String parseObservationData(String data) {
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new java.io.StringReader(data));
-
+    
             StringBuilder observation = new StringBuilder();
             int eventType = parser.getEventType();
-
+            boolean firstTitleSkipped = false;
+            boolean firstDescriptionSkipped = false;
+    
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
-                    String title = parser.nextText().trim();
-                    observation.append(title).append("\n");
+                    if (!firstTitleSkipped) {
+                        firstTitleSkipped = true;
+                    } else {
+                        String title = parser.nextText().trim();
+                        observation.append(title).append("\n");
+                    }
+                } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("description")) {
+                    if (!firstDescriptionSkipped) {
+                        firstDescriptionSkipped = true;
+                    } else {
+                        String description = parser.nextText().trim();
+                        observation.append(description).append("\n");
+                    }
                 }
                 eventType = parser.next();
             }
-
+    
             return observation.toString();
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
             return "";
         }
-    }
+    }        
 
-    private void displayForecastData() {
+    private void displayForecastData(Map<String, Object> forecastData) {
         StringBuilder displayText = new StringBuilder();
-        for (String forecast : forecastData) {
-            displayText.append(forecast).append("\n");
+    
+        // Extracting location
+        String location = (String) forecastData.get("location");
+        if (location != null) {
+            displayText.append("Location: ").append(location).append("\n\n");
         }
+    
+        // Extracting forecasts
+        List<Map<String, String>> forecasts = (List<Map<String, String>>) forecastData.get("forecasts");
+        if (forecasts != null) {
+            for (Map<String, String> forecast : forecasts) {
+                String title = forecast.get("title");
+                String description = forecast.get("description");
+                if (title != null && description != null) {
+                    displayText.append(title).append(": ").append(description).append("\n\n");
+                }
+            }
+        }
+    
+        // Extracting georssPoint
+        String georssPoint = (String) forecastData.get("georssPoint");
+        if (georssPoint != null) {
+            displayText.append("Georss Point: ").append(georssPoint).append("\n");
+        }
+    
         forecastDisplay.setText(displayText.toString());
         locationDisplay.setText(currentLocation);
         locationDisplay.setVisibility(View.VISIBLE); // Show the location display TextView
-    }
+    }    
 
     private void displayObservationData() {
         observationDisplay.setText(observationData);
