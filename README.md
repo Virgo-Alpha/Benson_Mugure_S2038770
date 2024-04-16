@@ -14,6 +14,7 @@ Steps
 3. Create an elaborate data structure that will have all the data needed from both feeds
 5. Decouple each element of the xml to an object in the data structure
 4. Design the outline with rectangles (upload pic and ask for xml code)
+4. Add the icons and the map
 5. Make the 3-day forecasts as links to child pages
 6. No internet rxn
 7. Settings for autorefresh on load and manually set by user and  other settings

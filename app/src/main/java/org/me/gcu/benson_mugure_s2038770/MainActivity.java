@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Log.e("MainActivity", "Error parsing forecast data", e); // Log the error
         }
     
+        Log.d("Forecast: ", forecastData.toString());
         return forecastData;
     }    
 
@@ -225,7 +226,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 }
                 eventType = parser.next();
             }
-    
+            
+            Log.d("Observation", observation.toString());
             return observation.toString();
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
