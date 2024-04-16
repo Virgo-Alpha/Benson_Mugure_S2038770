@@ -105,15 +105,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Map<String, Object> forecastData = parseForecastData(data);
             runOnUiThread(() -> displayForecastData(forecastData));
         }).start();
-    }    
+    }
 
     private void fetchAndDisplayObservationData(String location) {
         String locationCode = locationCodes.get(location);
         String url = "https://weather-broker-cdn.api.bbci.co.uk/en/observation/rss/" + locationCode;
         new Thread(() -> {
             String data = fetchWeatherData(url);
-            observationData = parseObservationData(data);
-            runOnUiThread(() -> displayObservationData());
+            Map<String, String> observation = parseObservationData(data);
+            runOnUiThread(() -> displayObservationData(observation));
         }).start();
     }
 
@@ -197,43 +197,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return forecastData;
     }    
 
-    private String parseObservationData(String data) {
+    private Map<String, String> parseObservationData(String data) {
+        Map<String, String> observation = new HashMap<>();
+    
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new java.io.StringReader(data));
     
-            StringBuilder observation = new StringBuilder();
             int eventType = parser.getEventType();
-            boolean firstTitleSkipped = false;
-            boolean firstDescriptionSkipped = false;
     
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
-                    if (!firstTitleSkipped) {
-                        firstTitleSkipped = true;
-                    } else {
-                        String title = parser.nextText().trim();
-                        observation.append(title).append("\n");
-                    }
+                    String title = parser.nextText().trim();
+                    observation.put("title", title);
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("description")) {
-                    if (!firstDescriptionSkipped) {
-                        firstDescriptionSkipped = true;
-                    } else {
-                        String description = parser.nextText().trim();
-                        observation.append(description).append("\n");
-                    }
+                    String description = parser.nextText().trim();
+                    observation.put("description", description);
+                } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("pubDate")) {
+                    String pubDate = parser.nextText().trim();
+                    observation.put("pubDate", pubDate);
                 }
                 eventType = parser.next();
             }
             
-            Log.d("Observation", observation.toString());
-            return observation.toString();
+            Log.d("Observation: ", observation.toString());
+            return observation;
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
-            return "";
+            return new HashMap<>();
         }
-    }        
+    }            
 
     private void displayForecastData(Map<String, Object> forecastData) {
         StringBuilder displayText = new StringBuilder();
@@ -267,8 +261,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         locationDisplay.setVisibility(View.VISIBLE); // Show the location display TextView
     }    
 
-    private void displayObservationData() {
-        observationDisplay.setText(observationData);
+    private void displayObservationData(Map<String, String> observation) {
+        StringBuilder observationText = new StringBuilder();
+        observationText.append("Title: ").append(observation.get("title")).append("\n");
+        observationText.append("Description: ").append(observation.get("description")).append("\n");
+        observationText.append("Date: ").append(observation.get("pubDate")).append("\n");
+    
+        observationDisplay.setText(observationText.toString());
         observationDisplay.setVisibility(View.VISIBLE); // Show the observation display TextView
     }
 }

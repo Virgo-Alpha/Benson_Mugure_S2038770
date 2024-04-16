@@ -20,12 +20,12 @@
             android:textSize="20sp"
             android:layout_centerHorizontal="true"/>
 
-        <!-- Move observationDisplay below separationText -->
+        <!-- Move observationDisplay above separationText -->
         <TextView
             android:id="@+id/observationDisplay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/separationText"
+            android:layout_below="@id/locationDisplay"
             android:layout_marginTop="16dp"
             android:text="@string/observation"
             android:textSize="18sp" />
@@ -34,17 +34,17 @@
             android:id="@+id/separationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/forecastDisplay"
+            android:layout_below="@id/observationDisplay"
             android:layout_marginTop="16dp"
             android:text="@string/separation"
             android:textSize="18sp" />
 
-        <!-- Move forecastDisplay below locationDisplay -->
+        <!-- Move forecastDisplay below separationText -->
         <TextView
             android:id="@+id/forecastDisplay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/locationDisplay"
+            android:layout_below="@id/separationText"
             android:layout_marginTop="16dp"
             android:text="@string/forecast"
             android:textSize="18sp" />
@@ -53,7 +53,7 @@
             android:id="@+id/prevButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/observationDisplay"
+            android:layout_below="@id/forecastDisplay"
             android:layout_marginTop="16dp"
             android:text="@string/previous" />
 
@@ -61,7 +61,7 @@
             android:id="@+id/nextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/observationDisplay"
+            android:layout_below="@id/forecastDisplay"
             android:layout_marginTop="16dp"
             android:layout_alignParentEnd="true"
             android:text="@string/next" />
