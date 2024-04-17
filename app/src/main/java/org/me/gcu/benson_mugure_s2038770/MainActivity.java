@@ -8,6 +8,8 @@
 package org.me.gcu.benson_mugure_s2038770;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView observationDate;
     private Button prevButton;
     private Button nextButton;
+    private Button navigateButton;
     private TextView locationDisplay;
 
     private HashMap<String, String> locationCodes;
@@ -77,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         observationDate = findViewById(R.id.observationDate); // Initialize observation display TextView
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
+        navigateButton = findViewById(R.id.navigateButton);
         locationDisplay = findViewById(R.id.locationDisplay);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
@@ -116,7 +120,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
+        } else if (v.getId() == R.id.navigateButton) {
+            navigate(v); // ! Call your navigate function when the button is clicked
         }
+    }
+
+    // navigate to a new activity when the navigate button is clicked
+    public void navigate(View view) {
+        Intent intent = new Intent(this, FirstFragment.class);
+        intent.putExtra("location", currentLocation);
+        startActivity(intent);
     }
 
     private void fetchAndDisplayForecastData(String location) {

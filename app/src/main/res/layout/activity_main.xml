@@ -9,7 +9,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/border_black">
 
         <TextView
             android:id="@+id/locationDisplay"
@@ -20,113 +22,141 @@
             android:textSize="20sp"
             android:layout_centerHorizontal="true"/>
 
-        <!-- Observation Display Layout: observationDay, observationTime, observationWeather, observationTitleTemperature, observationTemperature, observationWindDirection, observationWindSpeed, observationHumidity, observationPressure, observationVisibility, observationDate -->
-        <TextView
-            android:id="@+id/observationDay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/locationDisplay"
-            android:layout_marginTop="16dp"
-            android:text="@string/day"
-            android:textSize="18sp" />
+            <!-- <ImageView
+                android:id="@+id/weatherIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:contentDescription="@string/weather_icon"
+                android:src="@drawable/ic_launcher_foreground" /> -->
 
-        <TextView
-            android:id="@+id/observationTime"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/currentWeather"
+            android:layout_width="340dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/observationDay"
-            android:layout_marginTop="16dp"
-            android:text="@string/time"
-            android:textSize="18sp" />
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="41dp"
+            android:background="@drawable/smaller_border"
+            android:padding="10dp">
 
-        <TextView
-            android:id="@+id/observationWeather"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationTime"
-            android:layout_marginTop="16dp"
-            android:text="@string/weather"
-            android:textSize="18sp" />
+            <!-- Observation Display Layout: observationDay, observationTime, observationWeather, observationTitleTemperature, observationTemperature, observationWindDirection, observationWindSpeed, observationHumidity, observationPressure, observationVisibility, observationDate -->
+            <TextView
+                android:id="@+id/observationDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/day"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationTitleTemperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationWeather"
-            android:layout_marginTop="16dp"
-            android:text="@string/temperature"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationDay"
+                android:layout_marginTop="16dp"
+                android:text="@string/time"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationTemperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationTitleTemperature"
-            android:layout_marginTop="16dp"
-            android:text="@string/temperature"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationWeather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationTime"
+                android:layout_marginTop="16dp"
+                android:text="@string/weather"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationWindDirection"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationTemperature"
-            android:layout_marginTop="16dp"
-            android:text="@string/wind_direction"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationTitleTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationWeather"
+                android:layout_marginTop="16dp"
+                android:text="@string/temperature"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationWindSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationWindDirection"
-            android:layout_marginTop="16dp"
-            android:text="@string/wind_speed"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationTitleTemperature"
+                android:layout_marginTop="16dp"
+                android:text="@string/temperature"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationHumidity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationWindSpeed"
-            android:layout_marginTop="16dp"
-            android:text="@string/humidity"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationWindDirection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationTemperature"
+                android:layout_marginTop="16dp"
+                android:text="@string/wind_direction"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationPressure"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationHumidity"
-            android:layout_marginTop="16dp"
-            android:text="@string/pressure"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationWindSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationWindDirection"
+                android:layout_marginTop="16dp"
+                android:text="@string/wind_speed"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationVisibility"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationPressure"
-            android:layout_marginTop="16dp"
-            android:text="@string/visibility"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/observationHumidity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationWindSpeed"
+                android:layout_marginTop="16dp"
+                android:text="@string/humidity"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/observationDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/observationVisibility"
-            android:layout_marginTop="16dp"
-            android:text="@string/date"
-            android:textSize="18sp" />
-        
-        <!-- End Observation Display Layout -->
+            <TextView
+                android:id="@+id/observationPressure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationHumidity"
+                android:layout_marginTop="16dp"
+                android:text="@string/pressure"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/observationVisibility"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationPressure"
+                android:layout_marginTop="16dp"
+                android:text="@string/visibility"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/observationDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationVisibility"
+                android:layout_marginTop="16dp"
+                android:text="@string/date"
+                android:textSize="18sp" />
+
+            <!-- Button to navigate to a new page -->
+            <Button
+                android:id="@+id/navigateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/observationDate"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:text="@string/navigate"
+                android:textSize="14sp" />
+
+            <!-- End Observation Display Layout -->
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/separationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/observationDate"
+            android:layout_below="@id/currentWeather"
             android:layout_marginTop="16dp"
             android:text="@string/separation"
             android:textSize="18sp" />
