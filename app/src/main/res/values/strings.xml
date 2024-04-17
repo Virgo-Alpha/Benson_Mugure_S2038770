@@ -9,7 +9,17 @@
     <string name="forecast">Forecast</string>
     <string name="location">Location: </string>
     <string name="separation">Now begins the 3-day forecast: </string>
-    <string name="observation">Latest Observations: </string>
+<!--    <string name="observation">Latest Observations: </string>-->
+    <string name="day">Day: </string>
+    <string name="time">Time: </string>
+    <string name="weather">Current weather: </string>
+    <string name="temperature">Temperature: </string>
+    <string name="wind_direction">Wind direction: </string>
+    <string name="wind_speed">Wind speed: </string>
+    <string name="humidity">Humidity: </string>
+    <string name="pressure">Pressure: </string>
+    <string name="visibility">Visibility: </string>
+    <string name="date">Date: </string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris

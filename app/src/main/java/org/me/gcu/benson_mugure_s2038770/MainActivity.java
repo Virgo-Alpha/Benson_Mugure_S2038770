@@ -32,15 +32,26 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView forecastDisplay;
-    private TextView observationDisplay; // Add TextView for observation display
+    // private TextView observationDisplay; // Add TextView for observation display
+    private TextView observationDay;  // ! Below here
+    private TextView observationTime;
+    private TextView observationWeather;
+    private TextView observationTitleTemperature;
+    private TextView observationTemperature;
+    private TextView observationWindDirection;
+    private TextView observationWindSpeed;
+    private TextView observationHumidity;
+    private TextView observationPressure;
+    private TextView observationVisibility;
+    private TextView observationDate;
     private Button prevButton;
     private Button nextButton;
     private TextView locationDisplay;
 
     private HashMap<String, String> locationCodes;
     private String currentLocation;
-    private String[] forecastData;
-    private String observationData; // Store observation data as a String
+    private Map<String, Object> forecastData;
+    private Map<String, String> observationData;
 
     private int currentLocationIndex;
     private List<String> locations;
@@ -52,7 +63,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Initialize UI components
         forecastDisplay = findViewById(R.id.forecastDisplay);
-        observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
+        // observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
+        observationDay = findViewById(R.id.observationDay); // Initialize observation display TextView
+        observationTime = findViewById(R.id.observationTime); // Initialize observation display TextView
+        observationWeather = findViewById(R.id.observationWeather); // Initialize observation display TextView
+        observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
+        observationTemperature = findViewById(R.id.observationTemperature); // Initialize observation display TextView
+        observationWindDirection = findViewById(R.id.observationWindDirection); // Initialize observation display TextView
+        observationWindSpeed = findViewById(R.id.observationWindSpeed); // Initialize observation display TextView
+        observationHumidity = findViewById(R.id.observationHumidity); // Initialize observation display TextView
+        observationPressure = findViewById(R.id.observationPressure); // Initialize observation display TextView
+        observationVisibility = findViewById(R.id.observationVisibility); // Initialize observation display TextView
+        observationDate = findViewById(R.id.observationDate); // Initialize observation display TextView
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
         locationDisplay = findViewById(R.id.locationDisplay);
@@ -115,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Map<String, String> observation = parseObservationData(data);
             runOnUiThread(() -> displayObservationData(observation));
         }).start();
-    }
+    }    
 
     private String constructForecastUrl(String locationCode) {
         return "https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/" + locationCode;
@@ -139,11 +161,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    // Loop over the channel
-    // Ignore the first title and the first description
-    // Get the second title from inside the image tag then loop over the item tags, extracting the title and description for each item as the 2 are linked together; also get at least one georss:point tag's data and store it
-    // Find a suitable way to store the extracted info. The georss:point tag's data is the lat-lon data, i.e., map data. The second title gives the location, the other titles give forecasts for the 3 days and their corresponding descriptions give deeper forecasts. As such, I suggest storing them as 3: Location; a list of 3 dictionaries for the 3 days each with the keys for title and description; as well as the map data
-    // - Perhaps get the date
     private Map<String, Object> parseForecastData(String data) {
         Map<String, Object> forecastData = new HashMap<>();
     
@@ -194,6 +211,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     
         Log.d("Forecast: ", forecastData.toString());
+        // The above logs: {location=BBC Weather - Forecast for  Dhaka, BD, georssPoint=23.7104 90.4074, forecasts=[{title=BBC Weather - Forecast for  Dhaka, BD}, {description=Maximum Temperature: 36°C (97°F), Minimum Temperature: 25°C (78°F), Wind Direction: South Westerly, Wind Speed: 11mph, Visibility: Good, Pressure: 1003mb, Humidity: 49%, UV Risk: 8, Pollution: -- , Sunrise: 05:35 BDT, Sunset: 18:21 BDT, title=Today: Drizzle, Minimum Temperature: 25°C (78°F) Maximum Temperature: 36°C (97°F)}, {description=Maximum Temperature: 36°C (97°F), Minimum Temperature: 25°C (76°F), Wind Direction: Southerly, Wind Speed: 9mph, Visibility: Good, Pressure: 1003mb, Humidity: 63%, UV Risk: 8, Pollution: -- , Sunrise: 05:34 BDT, Sunset: 18:21 BDT, title=Thursday: Sunny, Minimum Temperature: 25°C (76°F) Maximum Temperature: 36°C (97°F)}, {description=Maximum Temperature: 37°C (99°F), Minimum Temperature: 25°C (77°F), Wind Direction: Southerly, Wind Speed: 9mph, Visibility: Moderate, Pressure: 1000mb, Humidity: 59%, UV Risk: 9, Pollution: -- , Sunrise: 05:34 BDT, Sunset: 18:22 BDT, title=Friday: Sunny, Minimum Temperature: 25°C (77°F) Maximum Temperature: 37°C (99°F)}]}
         return forecastData;
     }    
 
@@ -206,28 +224,53 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             parser.setInput(new java.io.StringReader(data));
     
             int eventType = parser.getEventType();
+            String title = null;
+            String description = null;
     
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
-                    String title = parser.nextText().trim();
-                    observation.put("title", title);
+                    title = parser.nextText().trim();
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("description")) {
-                    String description = parser.nextText().trim();
-                    observation.put("description", description);
+                    description = parser.nextText().trim();
                 } else if (eventType == XmlPullParser.START_TAG && parser.getName().equals("pubDate")) {
                     String pubDate = parser.nextText().trim();
-                    observation.put("pubDate", pubDate);
+                    observation.put("Date", pubDate);
                 }
                 eventType = parser.next();
             }
-            
+    
+            if (title != null && description != null) {
+                // Extract elements from the title
+                String[] titleParts = title.split(" - ");
+                if (titleParts.length >= 2) {
+                    observation.put("Day", titleParts[0]);
+                    observation.put("Time", titleParts[1].substring(0, titleParts[1].indexOf(':') + 7));
+                    observation.put("Weather", titleParts[1].substring(titleParts[1].indexOf(':') + 9, titleParts[1].indexOf(',')));
+    
+                    // Extract temperature from title
+                    String temp = titleParts[1].substring(titleParts[1].indexOf(',') + 1);
+
+                    observation.put("TitleTemperature", temp);
+                }
+    
+                // Extract elements from the description
+                String[] descParts = description.split(",");
+                for (String part : descParts) {
+                    String[] keyValue = part.trim().split(":");
+                    if (keyValue.length == 2) {
+                        observation.put(keyValue[0].trim(), keyValue[1].trim());
+                    }
+                }
+            }
+    
             Log.d("Observation: ", observation.toString());
+            // The above logs: {Weather=Not available, TitleTemperature= 35°C (95°F), Temperature=35°C (95°F), Wind Speed=2mph, Humidity=55%, Time=15:00 BDT, Visibility=Moderate, Day=Wednesday, Pressure=1004mb, Date=Wed, 17 Apr 2024 09:00:00 GMT, Wind Direction=South South Easterly}
             return observation;
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
             return new HashMap<>();
         }
-    }            
+    }                    
 
     private void displayForecastData(Map<String, Object> forecastData) {
         StringBuilder displayText = new StringBuilder();
@@ -262,12 +305,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }    
 
     private void displayObservationData(Map<String, String> observation) {
-        StringBuilder observationText = new StringBuilder();
-        observationText.append("Title: ").append(observation.get("title")).append("\n");
-        observationText.append("Description: ").append(observation.get("description")).append("\n");
-        observationText.append("Date: ").append(observation.get("pubDate")).append("\n");
-    
-        observationDisplay.setText(observationText.toString());
-        observationDisplay.setVisibility(View.VISIBLE); // Show the observation display TextView
-    }
+        observationDay.setText(observation.get("Day"));
+        observationTime.setText(observation.get("Time"));
+        observationWeather.setText(observation.get("Weather"));
+        observationTitleTemperature.setText(observation.get("TitleTemperature"));
+        observationTemperature.setText(observation.get("Temperature"));
+        observationWindDirection.setText(observation.get("Wind Direction"));
+        observationWindSpeed.setText(observation.get("Wind Speed"));
+        observationHumidity.setText(observation.get("Humidity"));
+        observationPressure.setText(observation.get("Pressure"));
+        observationVisibility.setText(observation.get("Visibility"));
+        observationDate.setText(observation.get("Date"));
+    }    
 }
