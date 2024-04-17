@@ -9,7 +9,7 @@ sudo ./studio.sh
 ```
 
 Steps
-1. Check for extra data from the latest observations; Log instead of just running the app
+-- 1. Check for extra data from the latest observations; Log instead of just running the app
 2. Decouple the parsing from the main java file
 3. Create an elaborate data structure that will have all the data needed from both feeds
 5. Decouple each element of the xml to an object in the data structure
