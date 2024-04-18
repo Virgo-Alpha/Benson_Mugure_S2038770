@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Benson_Mugure_S2038770"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".current_weather"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

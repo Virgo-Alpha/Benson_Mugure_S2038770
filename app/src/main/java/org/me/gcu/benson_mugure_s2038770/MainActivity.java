@@ -122,22 +122,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
+        } else if (v.getId() == R.id.navigateButton) {
+            currentLocationIndex = (currentLocationIndex + 1) % locations.size();
+            currentLocation = locations.get(currentLocationIndex);
+            // Call fetchObservationData with a callback
+            fetchObservationData(currentLocation, new ObservationDataCallback() {
+                @Override
+                public void onObservationDataReceived(Map<String, String> observation) {
+                    navigateWithObservation(observation);
+                }
+            });
         }
-//        else if (v.getId() == R.id.navigateButton) {
-//            navigate(v); // ! Call your navigate function when the button is clicked
-//        }
     }
 
     // navigate to a new activity when the navigate button is clicked
-//    public void navigate(View view) {
-//        Intent intent = new Intent(this, current_weather.class);
-//
-//        // pass the observation data and the forecast data to the new activity
-//        intent.putExtra("observation", (Serializable) observationData);
-//        intent.putExtra("forecast", (Serializable) forecastData);
-//
-//        startActivity(intent);
-//    }
+    public void navigateWithObservation(Map<String, String> observation) {
+        Intent intent = new Intent(this, current_weather.class);
+        // Pass the observation data to the new activity
+        intent.putExtra("observation", (Serializable) observation);
+        startActivity(intent);
+    }    
 
     private void fetchAndDisplayForecastData(String location) {
         String locationCode = locationCodes.get(location);
@@ -148,6 +152,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             runOnUiThread(() -> displayForecastData(forecastData));
         }).start();
     }
+
+    private void fetchObservationData(String location, ObservationDataCallback callback) {
+        String locationCode = locationCodes.get(location);
+        String url = "https://weather-broker-cdn.api.bbci.co.uk/en/observation/rss/" + locationCode;
+    
+        new Thread(() -> {
+            String data = fetchWeatherData(url);
+            Map<String, String> observation = parseObservationData(data);
+            // Pass the observation data to the callback
+            callback.onObservationDataReceived(observation);
+        }).start();
+    }
+    
+    // Define a callback interface
+    interface ObservationDataCallback {
+        void onObservationDataReceived(Map<String, String> observation);
+    }        
 
     private void fetchAndDisplayObservationData(String location) {
         String locationCode = locationCodes.get(location);
