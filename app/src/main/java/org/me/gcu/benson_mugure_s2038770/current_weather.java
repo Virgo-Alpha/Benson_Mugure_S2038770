@@ -19,14 +19,25 @@ public class current_weather extends AppCompatActivity {
 
         if (extras != null) {
             Map<String, String> observationData = (Map<String, String>) extras.getSerializable("observation");
-            Log.d("extras: ", extras.toString());
-
-            // Log.d("ObservationData: ", observationData.toString());
+            String location = extras.getString("location");
 
             // Display the observation data
             if (observationData != null) {
+                // Find the TextView in the layout
                 TextView observationTextView = findViewById(R.id.observationTextView);
-                observationTextView.setText("Observation Data: " + observationData.toString());
+                TextView locationTextView = findViewById(R.id.separationText);
+                
+                // Create a StringBuilder to build the formatted string
+                StringBuilder observationText = new StringBuilder();
+
+                // Iterate over the observation data map and append key-value pairs to the StringBuilder
+                for (Map.Entry<String, String> entry : observationData.entrySet()) {
+                    observationText.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                }
+
+                // Set the formatted string to the TextView
+                observationTextView.setText(observationText.toString());
+                locationTextView.setText(location);
             }
         }
     }

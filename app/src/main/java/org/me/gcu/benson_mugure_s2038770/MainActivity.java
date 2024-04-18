@@ -123,23 +123,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
         } else if (v.getId() == R.id.navigateButton) {
-            currentLocationIndex = (currentLocationIndex + 1) % locations.size();
             currentLocation = locations.get(currentLocationIndex);
             // Call fetchObservationData with a callback
             fetchObservationData(currentLocation, new ObservationDataCallback() {
                 @Override
                 public void onObservationDataReceived(Map<String, String> observation) {
-                    navigateWithObservation(observation);
+                    navigateWithObservation(observation, currentLocation);
                 }
             });
         }
     }
 
     // navigate to a new activity when the navigate button is clicked
-    public void navigateWithObservation(Map<String, String> observation) {
+    public void navigateWithObservation(Map<String, String> observation, String location) {
         Intent intent = new Intent(this, current_weather.class);
         // Pass the observation data to the new activity
         intent.putExtra("observation", (Serializable) observation);
+        intent.putExtra("location", location);
         startActivity(intent);
     }    
 
