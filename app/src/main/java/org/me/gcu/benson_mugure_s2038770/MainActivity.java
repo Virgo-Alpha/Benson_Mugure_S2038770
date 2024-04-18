@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         locationDisplay = findViewById(R.id.locationDisplay);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
+        navigateButton.setOnClickListener(this);
 
         // Initialize location codes
         locationCodes = new HashMap<>();
@@ -120,17 +122,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
-        } else if (v.getId() == R.id.navigateButton) {
-            navigate(v); // ! Call your navigate function when the button is clicked
         }
+//        else if (v.getId() == R.id.navigateButton) {
+//            navigate(v); // ! Call your navigate function when the button is clicked
+//        }
     }
 
     // navigate to a new activity when the navigate button is clicked
-    public void navigate(View view) {
-        Intent intent = new Intent(this, FirstFragment.class);
-        intent.putExtra("location", currentLocation);
-        startActivity(intent);
-    }
+//    public void navigate(View view) {
+//        Intent intent = new Intent(this, current_weather.class);
+//
+//        // pass the observation data and the forecast data to the new activity
+//        intent.putExtra("observation", (Serializable) observationData);
+//        intent.putExtra("forecast", (Serializable) forecastData);
+//
+//        startActivity(intent);
+//    }
 
     private void fetchAndDisplayForecastData(String location) {
         String locationCode = locationCodes.get(location);
