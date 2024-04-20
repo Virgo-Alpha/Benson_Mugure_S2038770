@@ -8,7 +8,7 @@
     <string name="previous">Previous</string>
     <string name="forecast">Forecast</string>
     <string name="location">Location: </string>
-    <string name="separation">Now begins the 3-day forecast: </string>
+    <string name="separation">Three-day weather forecast: </string>
     <!--    <string name="observation">Latest Observations: </string>-->
     <string name="day">Day: </string>
     <string name="time">Time: </string>

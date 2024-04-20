@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -36,7 +37,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView forecastDisplay;
     // private TextView observationDisplay; // Add TextView for observation display
-    private TextView observationDay;  // ! Below here
+    private TextView observationDay;
     private TextView observationTime;
     private TextView observationWeather;
     private TextView observationTitleTemperature;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private TextView observationPressure;
     private TextView observationVisibility;
     private TextView observationDate;
+
+    private TextView currentWeatherTextView;
     private Button prevButton;
     private Button nextButton;
     private Button navigateButton;
@@ -61,25 +64,64 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private int currentLocationIndex;
     private List<String> locations;
 
+    private HashMap<String, Integer> weatherIcons = new HashMap<>();
+    // ! private HashMap<String, Integer> nightIcons = new HashMap<>();
+
+
+    // // Initialize night icons: similar as for day but with night prefix
+    // nightIcons.put("Sunny", R.drawable.night_clear);
+    // nightIcons.put("Partly Cloudy", R.drawable.night_partial_cloud);
+    // nightIcons.put("Mostly Cloudy", R.drawable.cloudy);
+    // nightIcons.put("Overcast", R.drawable.overcast);
+    // nightIcons.put("Rain", R.drawable.night_rain);
+    // nightIcons.put("Rain and Thunderstorms", R.drawable.night_rain_thunder);
+    // nightIcons.put("Light Rain", R.drawable.night_rain);
+    // // Add more night icons as needed: sleet, snow, fog, thunder, mist
+    // nightIcons.put("Sleet", R.drawable.night_sleet);
+    // nightIcons.put("Snow", R.drawable.night_snow);
+    // nightIcons.put("Snow and Thunderstorms", R.drawable.night_snow_thunder);
+    // nightIcons.put("Fog", R.drawable.fog);
+    // nightIcons.put("Thunder", R.drawable.thunder);
+    // nightIcons.put("Mist", R.drawable.mist);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize icons
+         weatherIcons.put("Sunny", R.drawable.day_clear);
+        weatherIcons.put("Partly Cloudy", R.drawable.day_partial_cloud);
+        weatherIcons.put("Mostly Cloudy", R.drawable.cloudy);
+        weatherIcons.put("Overcast", R.drawable.overcast);
+        weatherIcons.put("Rain", R.drawable.day_rain);
+        weatherIcons.put("Rain and Thunderstorms", R.drawable.day_rain_thunder);
+        weatherIcons.put("Light Rain", R.drawable.day_rain);
+         // Add more day icons as needed: sleet, snow, fog, thunder, mist
+        weatherIcons.put("Sleet", R.drawable.sleet);
+        weatherIcons.put("Snow", R.drawable.day_snow);
+        weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
+        weatherIcons.put("Fog", R.drawable.fog);
+        weatherIcons.put("Thunder", R.drawable.thunder);
+        weatherIcons.put("Mist", R.drawable.mist);
+        weatherIcons.put("Tornado", R.drawable.tornado);
+        weatherIcons.put("Wind", R.drawable.wind);
+
         // Initialize UI components
         forecastDisplay = findViewById(R.id.forecastDisplay);
         // observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
-        observationDay = findViewById(R.id.observationDay); // Initialize observation display TextView
-        observationTime = findViewById(R.id.observationTime); // Initialize observation display TextView
-        observationWeather = findViewById(R.id.observationWeather); // Initialize observation display TextView
+//        observationDay = findViewById(R.id.observationDay); // Initialize observation display TextView
+//        observationTime = findViewById(R.id.observationTime); // Initialize observation display TextView
+//        observationWeather = findViewById(R.id.observationWeather); // Initialize observation display TextView
         observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
-        observationTemperature = findViewById(R.id.observationTemperature); // Initialize observation display TextView
-        observationWindDirection = findViewById(R.id.observationWindDirection); // Initialize observation display TextView
-        observationWindSpeed = findViewById(R.id.observationWindSpeed); // Initialize observation display TextView
-        observationHumidity = findViewById(R.id.observationHumidity); // Initialize observation display TextView
-        observationPressure = findViewById(R.id.observationPressure); // Initialize observation display TextView
-        observationVisibility = findViewById(R.id.observationVisibility); // Initialize observation display TextView
-        observationDate = findViewById(R.id.observationDate); // Initialize observation display TextView
+        currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
+//        observationTemperature = findViewById(R.id.observationTemperature); // Initialize observation display TextView
+//        observationWindDirection = findViewById(R.id.observationWindDirection); // Initialize observation display TextView
+//        observationWindSpeed = findViewById(R.id.observationWindSpeed); // Initialize observation display TextView
+//        observationHumidity = findViewById(R.id.observationHumidity); // Initialize observation display TextView
+//        observationPressure = findViewById(R.id.observationPressure); // Initialize observation display TextView
+//        observationVisibility = findViewById(R.id.observationVisibility); // Initialize observation display TextView
+//        observationDate = findViewById(R.id.observationDate); // Initialize observation display TextView
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
         navigateButton = findViewById(R.id.navigateButton);
@@ -384,16 +426,41 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }    
 
     private void displayObservationData(Map<String, String> observation) {
-        observationDay.setText(observation.get("Day"));
-        observationTime.setText(observation.get("Time"));
-        observationWeather.setText(observation.get("Weather"));
-        observationTitleTemperature.setText(observation.get("TitleTemperature"));
-        observationTemperature.setText(observation.get("Temperature"));
-        observationWindDirection.setText(observation.get("Wind Direction"));
-        observationWindSpeed.setText(observation.get("Wind Speed"));
-        observationHumidity.setText(observation.get("Humidity"));
-        observationPressure.setText(observation.get("Pressure"));
-        observationVisibility.setText(observation.get("Visibility"));
-        observationDate.setText(observation.get("Date"));
-    }    
+        // Set Current Weather with Date
+        TextView currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
+    
+        // Display Temperature
+        String titleTemperature = observation.get("TitleTemperature");
+        if (titleTemperature != null && titleTemperature.contains("°C")) {
+            // Extract temperature in Celsius
+            String temperatureCelsius = titleTemperature.substring(0, titleTemperature.indexOf("°C") + 2);
+            TextView temperatureTextView = findViewById(R.id.observationTitleTemperature);
+            temperatureTextView.setText(temperatureCelsius);
+        }
+    
+        // ! Display Weather Icon
+        String weather = observation.get("Weather");
+        if (weather != null && !weather.equals("Not available")) {
+            // TextView weatherTextView = findViewById(R.id.observationWeather);
+            // weatherTextView.setText(weather);
+
+            ImageView weatherIconView = findViewById(R.id.weatherIcon);
+
+            // Use the weatherIcons HashMap to set the icon
+            Integer iconRes = weatherIcons.get(weather);
+            if (iconRes != null) {
+                weatherIconView.setImageResource(iconRes);
+            }
+        }
+    
+        // Remove time from the day
+        String day = observation.get("Date");
+        if (day != null) {
+            int colonIndex = day.indexOf(':');
+            if (colonIndex != -1) {
+                day = day.substring(0, colonIndex - 2); // Remove time
+                currentWeatherTextView.setText("Current Weather: " + day);
+            }
+        }
+    }        
 }
