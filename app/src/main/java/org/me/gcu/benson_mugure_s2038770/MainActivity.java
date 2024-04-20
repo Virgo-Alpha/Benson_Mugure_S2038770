@@ -10,12 +10,15 @@ package org.me.gcu.benson_mugure_s2038770;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -90,14 +93,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         setContentView(R.layout.activity_main);
 
         // Initialize icons
-         weatherIcons.put("Sunny", R.drawable.day_clear);
+        weatherIcons.put("Sunny", R.drawable.day_clear);
         weatherIcons.put("Partly Cloudy", R.drawable.day_partial_cloud);
         weatherIcons.put("Mostly Cloudy", R.drawable.cloudy);
         weatherIcons.put("Overcast", R.drawable.overcast);
         weatherIcons.put("Rain", R.drawable.day_rain);
         weatherIcons.put("Rain and Thunderstorms", R.drawable.day_rain_thunder);
         weatherIcons.put("Light Rain", R.drawable.day_rain);
-         // Add more day icons as needed: sleet, snow, fog, thunder, mist
+        // Add more day icons as needed: sleet, snow, fog, thunder, mist
         weatherIcons.put("Sleet", R.drawable.sleet);
         weatherIcons.put("Snow", R.drawable.day_snow);
         weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         weatherIcons.put("Wind", R.drawable.wind);
 
         // Initialize UI components
-        forecastDisplay = findViewById(R.id.forecastDisplay);
+        // forecastDisplay = findViewById(R.id.forecastDisplay);
         // observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
 //        observationDay = findViewById(R.id.observationDay); // Initialize observation display TextView
 //        observationTime = findViewById(R.id.observationTime); // Initialize observation display TextView
@@ -127,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         navigateButton = findViewById(R.id.navigateButton);
         seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
         locationDisplay = findViewById(R.id.locationDisplay);
+        
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
         navigateButton.setOnClickListener(this);
@@ -219,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void fetchObservationData(String location, ObservationDataCallback callback) {
         String locationCode = locationCodes.get(location);
         String url = "https://weather-broker-cdn.api.bbci.co.uk/en/observation/rss/" + locationCode;
-    
+
         new Thread(() -> {
             String data = fetchWeatherData(url);
             Map<String, String> observation = parseObservationData(data);
@@ -227,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             callback.onObservationDataReceived(observation);
         }).start();
     }
-    
+
     // Define a callback interface
     interface ObservationDataCallback {
         void onObservationDataReceived(Map<String, String> observation);
@@ -236,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void fetchForecastData(String location, ForecastDataCallback callback) {
         String locationCode = locationCodes.get(location);
         String url = constructForecastUrl(locationCode);
-    
+
         new Thread(() -> {
             String data = fetchWeatherData(url);
             Map<String, Object> forecast = parseForecastData(data);
@@ -258,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Map<String, String> observation = parseObservationData(data);
             runOnUiThread(() -> displayObservationData(observation));
         }).start();
-    }    
+    }
 
     private String constructForecastUrl(String locationCode) {
         return "https://weather-broker-cdn.api.bbci.co.uk/en/forecast/rss/3day/" + locationCode;
@@ -284,17 +288,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private Map<String, Object> parseForecastData(String data) {
         Map<String, Object> forecastData = new HashMap<>();
-    
+
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new java.io.StringReader(data));
-    
+
             int eventType = parser.getEventType();
             String location = null;
             List<Map<String, String>> forecasts = new ArrayList<>();
             String georssPoint = null;
-    
+
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG) {
                     String tagName = parser.getName();
@@ -309,45 +313,45 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                             forecasts.add(forecast);
                         }
                     } else if (tagName.equals("description") && location != null) {
-                            String description = parser.nextText().trim();
-                            // Add description to the last forecast in the list
-                            if (!forecasts.isEmpty()) {
-                                forecasts.get(forecasts.size() - 1).put("description", description);
+                        String description = parser.nextText().trim();
+                        // Add description to the last forecast in the list
+                        if (!forecasts.isEmpty()) {
+                            forecasts.get(forecasts.size() - 1).put("description", description);
                         }
                     } else if (tagName.equals("georss:point") && georssPoint == null) {
                         georssPoint = parser.nextText().trim();
                     }
                 }
-    
+
                 eventType = parser.next();
             }
-    
+
             // Store the extracted information
             forecastData.put("location", location);
             forecastData.put("forecasts", forecasts);
             forecastData.put("georssPoint", georssPoint);
-    
+
         } catch (XmlPullParserException | IOException e) {
             Log.e("MainActivity", "Error parsing forecast data", e); // Log the error
         }
-    
+
         Log.d("Forecast: ", forecastData.toString());
         // The above logs: {location=BBC Weather - Forecast for  Dhaka, BD, georssPoint=23.7104 90.4074, forecasts=[{title=BBC Weather - Forecast for  Dhaka, BD}, {description=Maximum Temperature: 36°C (97°F), Minimum Temperature: 25°C (78°F), Wind Direction: South Westerly, Wind Speed: 11mph, Visibility: Good, Pressure: 1003mb, Humidity: 49%, UV Risk: 8, Pollution: -- , Sunrise: 05:35 BDT, Sunset: 18:21 BDT, title=Today: Drizzle, Minimum Temperature: 25°C (78°F) Maximum Temperature: 36°C (97°F)}, {description=Maximum Temperature: 36°C (97°F), Minimum Temperature: 25°C (76°F), Wind Direction: Southerly, Wind Speed: 9mph, Visibility: Good, Pressure: 1003mb, Humidity: 63%, UV Risk: 8, Pollution: -- , Sunrise: 05:34 BDT, Sunset: 18:21 BDT, title=Thursday: Sunny, Minimum Temperature: 25°C (76°F) Maximum Temperature: 36°C (97°F)}, {description=Maximum Temperature: 37°C (99°F), Minimum Temperature: 25°C (77°F), Wind Direction: Southerly, Wind Speed: 9mph, Visibility: Moderate, Pressure: 1000mb, Humidity: 59%, UV Risk: 9, Pollution: -- , Sunrise: 05:34 BDT, Sunset: 18:22 BDT, title=Friday: Sunny, Minimum Temperature: 25°C (77°F) Maximum Temperature: 37°C (99°F)}]}
         return forecastData;
-    }    
+    }
 
     private Map<String, String> parseObservationData(String data) {
         Map<String, String> observation = new HashMap<>();
-    
+
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = factory.newPullParser();
             parser.setInput(new java.io.StringReader(data));
-    
+
             int eventType = parser.getEventType();
             String title = null;
             String description = null;
-    
+
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 if (eventType == XmlPullParser.START_TAG && parser.getName().equals("title")) {
                     title = parser.nextText().trim();
@@ -359,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 }
                 eventType = parser.next();
             }
-    
+
             if (title != null && description != null) {
                 // Extract elements from the title
                 String[] titleParts = title.split(" - ");
@@ -367,13 +371,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     observation.put("Day", titleParts[0]);
                     observation.put("Time", titleParts[1].substring(0, titleParts[1].indexOf(':') + 7));
                     observation.put("Weather", titleParts[1].substring(titleParts[1].indexOf(':') + 9, titleParts[1].indexOf(',')));
-    
+
                     // Extract temperature from title
                     String temp = titleParts[1].substring(titleParts[1].indexOf(',') + 1);
 
                     observation.put("TitleTemperature", temp);
                 }
-    
+
                 // Extract elements from the description
                 String[] descParts = description.split(",");
                 for (String part : descParts) {
@@ -383,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     }
                 }
             }
-    
+
             Log.d("Observation: ", observation.toString());
             // The above logs: {Weather=Not available, TitleTemperature= 35°C (95°F), Temperature=35°C (95°F), Wind Speed=2mph, Humidity=55%, Time=15:00 BDT, Visibility=Moderate, Day=Wednesday, Pressure=1004mb, Date=Wed, 17 Apr 2024 09:00:00 GMT, Wind Direction=South South Easterly}
             return observation;
@@ -391,76 +395,175 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Log.e("MainActivity", "Error parsing latest Observation data", e); // Log the error
             return new HashMap<>();
         }
-    }                    
+    }
 
     private void displayForecastData(Map<String, Object> forecastData) {
+//        TextView day1TextView = findViewById(R.id.day1TextView);
+//        TextView weather1TextView = findViewById(R.id.weather1TextView);
+//        TextView temp1TextView = findViewById(R.id.temp1TextView);
+//
+//        TextView day2TextView = findViewById(R.id.day2TextView);
+//        TextView weather2TextView = findViewById(R.id.weather2TextView);
+//        TextView temp2TextView = findViewById(R.id.temp2TextView);
+//
+//        TextView day3TextView = findViewById(R.id.day3TextView);
+//        TextView weather3TextView = findViewById(R.id.weather3TextView);
+//        TextView temp3TextView = findViewById(R.id.temp3TextView);
+
         StringBuilder displayText = new StringBuilder();
-    
+
         // Extracting location
         String location = (String) forecastData.get("location");
         if (location != null) {
             displayText.append("Location: ").append(location).append("\n\n");
         }
-    
-        // Extracting forecasts
+
+        LinearLayout forecastContainer = findViewById(R.id.forecastContainer);
+
+        // Clear existing views from forecastContainer
+        forecastContainer.removeAllViews();
+
         List<Map<String, String>> forecasts = (List<Map<String, String>>) forecastData.get("forecasts");
-        if (forecasts != null) {
-            for (Map<String, String> forecast : forecasts) {
-                String title = forecast.get("title");
-                String description = forecast.get("description");
-                if (title != null && description != null) {
-                    displayText.append(title).append(": ").append(description).append("\n\n");
+
+        // Create a structured data model to hold forecast information
+        Map<String, List<String>> forecastInfo = new HashMap<>();
+        forecastInfo.put("days", new ArrayList<>());
+        forecastInfo.put("weather", new ArrayList<>());
+        forecastInfo.put("temperature", new ArrayList<>());
+
+        if (forecasts != null && forecasts.size() >= 4) {
+            for (int i = 1; i < 4; i++) { // Start from index 1 to skip the first forecast
+                Map<String, String> forecast = forecasts.get(i);
+                if (forecast != null) {
+                    String title = forecast.get("title");
+                    if (title != null) {
+                        String[] titleParts = title.split(",");
+                        if (titleParts.length >= 2) {
+                            // Extract Day and Weather Forecast
+                            String[] dayWeatherParts = titleParts[0].split(":");
+                            String day = "";
+                            String weatherForecast = "";
+                            if (dayWeatherParts.length == 2) {
+                                day = dayWeatherParts[0].trim(); // Extract Day
+                                weatherForecast = dayWeatherParts[1].trim(); // Extract Weather Forecast
+                            }
+
+                            // Extract Min and Max Temperature
+                            String[] tempParts = titleParts[1].split("F"); // Split at the degree symbol
+
+                            String minTemp = "";
+                            String maxTemp = "";
+
+                            // Check if the word "Temperature" is in the parts of tempParts
+                            // If it is, then extract the min temperature from the first and max temperature from the second part
+                            if (tempParts[0].contains("Temperature")) {
+                                minTemp = tempParts[0].substring(tempParts[0].indexOf(":") + 1, tempParts[0].indexOf(":") + 6).trim(); // Extract Min Temperature
+
+                            }
+                            if (tempParts[1].contains("Temperature")) {
+                                maxTemp = tempParts[1].substring(tempParts[1].indexOf(":") + 1, tempParts[1].indexOf(":") + 6).trim(); // Extract Max Temperature
+                            }
+
+                            // Add the extracted data to the forecastInfo map
+                            forecastInfo.get("days").add(day);
+                            forecastInfo.get("weather").add(weatherForecast);
+                            forecastInfo.get("temperature").add(minTemp + "/" + maxTemp);
+
+                        }
+                    }
                 }
             }
         }
+        Log.d("forecastInfo now", forecastInfo.toString());
+        // The above logs: {weather=[Clear Sky, Sunny, Sunny], temperature=[28°C/, 26°C/39°C, 26°C/39°C], days=[Tonight, Sunday, Monday]}
+
+
+        if (forecastInfo.get("days") != null && forecastInfo.get("weather") != null && forecastInfo.get("temperature") != null) {
+            int numForecasts = Math.min(forecastInfo.get("days").size(), Math.min(forecastInfo.get("weather").size(), forecastInfo.get("temperature").size()));
     
-        // Extracting georssPoint
+            for (int i = 0; i < numForecasts; i++) {
+                // Create a new LinearLayout for each forecast item
+                LinearLayout forecastItemLayout = new LinearLayout(this);
+                forecastItemLayout.setOrientation(LinearLayout.VERTICAL);
+                forecastItemLayout.setPadding(20, 20, 30, 20);
+                forecastItemLayout.setBackground(getDrawable(R.drawable.border_black));
+
+                // Create TextViews for day, weather, and temperature
+                TextView dayTextView = new TextView(this);
+                dayTextView.setText(forecastInfo.get("days").get(i));
+                dayTextView.setTextSize(20);
+                dayTextView.setTextColor(Color.BLACK);
+                dayTextView.setTypeface(null, Typeface.BOLD);
+                forecastItemLayout.addView(dayTextView);
+
+                TextView weatherTextView = new TextView(this);
+                weatherTextView.setText(forecastInfo.get("weather").get(i));
+                weatherTextView.setTextSize(16);
+                weatherTextView.setTextColor(Color.BLACK);
+                forecastItemLayout.addView(weatherTextView);
+
+                TextView tempTextView = new TextView(this);
+                tempTextView.setText(forecastInfo.get("temperature").get(i));
+                tempTextView.setTextSize(16);
+                tempTextView.setTextColor(Color.BLACK);
+                forecastItemLayout.addView(tempTextView);
+
+                // Add the forecast item layout to the main forecastContainer
+                forecastContainer.addView(forecastItemLayout);
+
+            }
+        } else {
+            Log.e("MainActivity", "Forecast data is null or empty");
+        }
+    
+
+        // ! Extracting georssPoint
         String georssPoint = (String) forecastData.get("georssPoint");
         if (georssPoint != null) {
             displayText.append("Georss Point: ").append(georssPoint).append("\n");
         }
-    
-        forecastDisplay.setText(displayText.toString());
+
+        // forecastDisplay.setText(displayText.toString());
         locationDisplay.setText(currentLocation);
         locationDisplay.setVisibility(View.VISIBLE); // Show the location display TextView
-    }    
+    }
 
-    private void displayObservationData(Map<String, String> observation) {
-        // Set Current Weather with Date
-        TextView currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
-    
-        // Display Temperature
-        String titleTemperature = observation.get("TitleTemperature");
-        if (titleTemperature != null && titleTemperature.contains("°C")) {
-            // Extract temperature in Celsius
-            String temperatureCelsius = titleTemperature.substring(0, titleTemperature.indexOf("°C") + 2);
-            TextView temperatureTextView = findViewById(R.id.observationTitleTemperature);
-            temperatureTextView.setText(temperatureCelsius);
-        }
-    
-        // ! Display Weather Icon
-        String weather = observation.get("Weather");
-        if (weather != null && !weather.equals("Not available")) {
-            // TextView weatherTextView = findViewById(R.id.observationWeather);
-            // weatherTextView.setText(weather);
+        private void displayObservationData (Map < String, String > observation){
+            // Set Current Weather with Date
+            TextView currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
 
-            ImageView weatherIconView = findViewById(R.id.weatherIcon);
+            // Display Temperature
+            String titleTemperature = observation.get("TitleTemperature");
+            if (titleTemperature != null && titleTemperature.contains("°C")) {
+                // Extract temperature in Celsius
+                String temperatureCelsius = titleTemperature.substring(0, titleTemperature.indexOf("°C") + 2);
+                TextView temperatureTextView = findViewById(R.id.observationTitleTemperature);
+                temperatureTextView.setText(temperatureCelsius);
+            }
 
-            // Use the weatherIcons HashMap to set the icon
-            Integer iconRes = weatherIcons.get(weather);
-            if (iconRes != null) {
-                weatherIconView.setImageResource(iconRes);
+            // ! Display Weather Icon
+            String weather = observation.get("Weather");
+            if (weather != null && !weather.equals("Not available")) {
+                // TextView weatherTextView = findViewById(R.id.observationWeather);
+                // weatherTextView.setText(weather);
+
+                ImageView weatherIconView = findViewById(R.id.weatherIcon);
+
+                // Use the weatherIcons HashMap to set the icon
+                Integer iconRes = weatherIcons.get(weather);
+                if (iconRes != null) {
+                    weatherIconView.setImageResource(iconRes);
+                }
+            }
+
+            // Remove time from the day
+            String day = observation.get("Date");
+            if (day != null) {
+                int colonIndex = day.indexOf(':');
+                if (colonIndex != -1) {
+                    day = day.substring(0, colonIndex - 2); // Remove time
+                    currentWeatherTextView.setText("Current Weather: " + day);
+                }
             }
         }
-    
-        // Remove time from the day
-        String day = observation.get("Date");
-        if (day != null) {
-            int colonIndex = day.indexOf(':');
-            if (colonIndex != -1) {
-                day = day.substring(0, colonIndex - 2); // Remove time
-                currentWeatherTextView.setText("Current Weather: " + day);
-            }
-        }
-    }        
-}
+    }

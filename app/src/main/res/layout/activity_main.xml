@@ -23,14 +23,6 @@
             android:textSize="20sp"
             android:layout_centerHorizontal="true"/>
 
-            <!-- <ImageView
-                android:id="@+id/weatherIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:contentDescription="@string/weather_icon"
-                android:src="@drawable/ic_launcher_foreground" /> -->
-
         <LinearLayout
             android:id="@+id/currentWeather"
             android:layout_width="match_parent"
@@ -66,16 +58,6 @@
                     android:textSize="48sp"
                     android:text="25°C"
                     android:textStyle="bold" />
-
-                <!-- Weather -->
-                <!-- <TextView
-                    android:id="@+id/observationWeather"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:text="Sunny"
-                    android:gravity="end" /> -->
 
                 <!-- Replace the above with weatherIconView -->
                 <ImageView
@@ -118,20 +100,27 @@
                 android:text="@string/separation"
                 android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/forecastDisplay"
-                android:layout_width="wrap_content"
+            <ScrollView
+                android:id="@+id/ForecastScrollView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_below="@id/separationText"
-                android:text="@string/forecast"
-                android:textSize="18sp" />
+                android:layout_below="@id/separationText">
+
+                <LinearLayout
+                    android:id="@+id/forecastContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+                </LinearLayout>
+
+            </ScrollView>
 
             <Button
                 android:id="@+id/seeFullForecastButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/forecastDisplay"
+                android:layout_below="@id/ForecastScrollView"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
                 android:text="@string/navigate"
