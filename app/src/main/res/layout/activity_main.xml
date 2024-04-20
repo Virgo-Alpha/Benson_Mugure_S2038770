@@ -160,22 +160,42 @@
             android:layout_marginTop="16dp"
             android:text="@string/separation"
             android:textSize="18sp" />
-
-        <!-- Move forecastDisplay below separationText -->
-        <TextView
-            android:id="@+id/forecastDisplay"
-            android:layout_width="wrap_content"
+        
+        <RelativeLayout
+            android:id="@+id/forecast"
+            android:layout_width="340dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/separationText"
-            android:layout_marginTop="16dp"
-            android:text="@string/forecast"
-            android:textSize="18sp" />
+            android:layout_marginTop="41dp"
+            android:background="@drawable/smaller_border"
+            android:padding="10dp">
+
+            <!-- Move forecastDisplay below separationText -->
+            <TextView
+                android:id="@+id/forecastDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/forecast"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/seeFullForecastButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/forecastDisplay"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:text="@string/navigate"
+                android:textSize="14sp" />
+        
+        </RelativeLayout>
 
         <Button
             android:id="@+id/prevButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/forecastDisplay"
+            android:layout_below="@id/forecast"
             android:layout_marginTop="16dp"
             android:text="@string/previous" />
 
@@ -183,7 +203,7 @@
             android:id="@+id/nextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/forecastDisplay"
+            android:layout_below="@id/forecast"
             android:layout_marginTop="16dp"
             android:layout_alignParentEnd="true"
             android:text="@string/next" />

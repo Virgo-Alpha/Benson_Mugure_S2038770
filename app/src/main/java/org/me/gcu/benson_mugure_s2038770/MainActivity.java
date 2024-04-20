@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private Button prevButton;
     private Button nextButton;
     private Button navigateButton;
+    private Button seeFullForecastButton;
     private TextView locationDisplay;
 
     private HashMap<String, String> locationCodes;
@@ -82,10 +83,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
         navigateButton = findViewById(R.id.navigateButton);
+        seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
         locationDisplay = findViewById(R.id.locationDisplay);
         prevButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
         navigateButton.setOnClickListener(this);
+        seeFullForecastButton.setOnClickListener(this);
 
         // Initialize location codes
         locationCodes = new HashMap<>();
@@ -131,6 +134,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     navigateWithObservation(observation, currentLocation);
                 }
             });
+        } else if (v.getId() == R.id.seeFullForecastButton) {
+            currentLocation = locations.get(currentLocationIndex);
+            // Call fetchForecastData with a callback
+            fetchForecastData(currentLocation, new ForecastDataCallback() {
+                @Override
+                public void onForecastDataReceived(Map<String, Object> forecast) {
+                    navigateWithForecast(forecast, currentLocation);
+                }
+            });
         }
     }
 
@@ -141,7 +153,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         intent.putExtra("observation", (Serializable) observation);
         intent.putExtra("location", location);
         startActivity(intent);
-    }    
+    }
+
+    // navigate to a new activity when the see full forecast button is clicked
+    public void navigateWithForecast(Map<String, Object> forecast, String location) {
+        Intent intent = new Intent(this, full_forecast.class);
+        // Pass the forecast data to the new activity
+        intent.putExtra("forecast", (Serializable) forecast);
+        intent.putExtra("location", location);
+        startActivity(intent);
+    }
 
     private void fetchAndDisplayForecastData(String location) {
         String locationCode = locationCodes.get(location);
@@ -168,7 +189,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     // Define a callback interface
     interface ObservationDataCallback {
         void onObservationDataReceived(Map<String, String> observation);
-    }        
+    }
+
+    private void fetchForecastData(String location, ForecastDataCallback callback) {
+        String locationCode = locationCodes.get(location);
+        String url = constructForecastUrl(locationCode);
+    
+        new Thread(() -> {
+            String data = fetchWeatherData(url);
+            Map<String, Object> forecast = parseForecastData(data);
+            // Pass the forecast data to the callback
+            callback.onForecastDataReceived(forecast);
+        }).start();
+    }
+
+    // Define a callback interface
+    interface ForecastDataCallback {
+        void onForecastDataReceived(Map<String, Object> forecast);
+    }
 
     private void fetchAndDisplayObservationData(String location) {
         String locationCode = locationCodes.get(location);
