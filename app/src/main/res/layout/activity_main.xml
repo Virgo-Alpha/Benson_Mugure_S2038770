@@ -62,11 +62,11 @@
                 <!-- Replace the above with weatherIconView -->
                 <ImageView
                     android:id="@+id/weatherIcon"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="166dp"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:paddingEnd="20dp"
                     android:contentDescription="weather_icon"
+                    android:paddingEnd="20dp"
                     android:src="@drawable/ic_launcher_foreground" />
 
 
@@ -75,10 +75,11 @@
             <!-- Navigate Button -->
             <Button
                 android:id="@+id/navigateButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_width="128dp"
+                android:layout_height="36dp"
+
                 android:layout_gravity="end"
+                android:layout_marginTop="16dp"
                 android:text="@string/navigate" />
 
         </LinearLayout>
@@ -88,7 +89,7 @@
             android:layout_width="362dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/currentWeather"
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="2dp"
             android:background="@drawable/smaller_border"
             android:padding="10dp">
 
@@ -96,9 +97,9 @@
                 android:id="@+id/separationText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+
                 android:text="@string/separation"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <ScrollView
                 android:id="@+id/ForecastScrollView"
@@ -119,13 +120,14 @@
 
             <Button
                 android:id="@+id/seeFullForecastButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="128dp"
+                android:layout_height="36dp"
                 android:layout_below="@id/ForecastScrollView"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="16dp"
-                android:layout_marginTop="27dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 android:text="@string/navigate"
                 android:textSize="14sp" />
 
@@ -133,20 +135,37 @@
 
         <Button
             android:id="@+id/prevButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="125dp"
+            android:layout_height="36dp"
             android:layout_below="@id/forecast"
             android:layout_marginTop="16dp"
             android:text="@string/previous" />
 
         <Button
             android:id="@+id/nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="125dp"
+            android:layout_height="36dp"
             android:layout_below="@id/forecast"
-            android:layout_marginTop="16dp"
             android:layout_alignParentEnd="true"
+            android:layout_marginTop="16dp"
             android:text="@string/next" />
 
+        <!-- Add this under your current layout -->
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@id/nextButton"
+            android:layout_marginTop="16dp">
+
+            <!-- This will hold the Google Map -->
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
     </RelativeLayout>
+
 </ScrollView>

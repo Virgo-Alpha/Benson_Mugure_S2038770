@@ -38,7 +38,14 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener {
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+public class MainActivity extends AppCompatActivity implements OnClickListener, OnMapReadyCallback {
     private TextView forecastDisplay;
     // private TextView observationDisplay; // Add TextView for observation display
     private TextView observationDay;
@@ -68,9 +75,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private int currentLocationIndex;
     private List<String> locations;
 
+    private GoogleMap mMap;
+    private String georssPoint; // Georss point from your data
+
     private HashMap<String, Integer> weatherIcons = new HashMap<>();
     // ! private HashMap<String, Integer> nightIcons = new HashMap<>();
-
 
     // // Initialize night icons: similar as for day but with night prefix
     // nightIcons.put("Sunny", R.drawable.night_clear);
@@ -114,20 +123,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         weatherIcons.put("Wind", R.drawable.wind);
 
         // Initialize UI components
-        // forecastDisplay = findViewById(R.id.forecastDisplay);
-        // observationDisplay = findViewById(R.id.observationDisplay); // Initialize observation display TextView
-//        observationDay = findViewById(R.id.observationDay); // Initialize observation display TextView
-//        observationTime = findViewById(R.id.observationTime); // Initialize observation display TextView
-//        observationWeather = findViewById(R.id.observationWeather); // Initialize observation display TextView
         observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
         currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
-//        observationTemperature = findViewById(R.id.observationTemperature); // Initialize observation display TextView
-//        observationWindDirection = findViewById(R.id.observationWindDirection); // Initialize observation display TextView
-//        observationWindSpeed = findViewById(R.id.observationWindSpeed); // Initialize observation display TextView
-//        observationHumidity = findViewById(R.id.observationHumidity); // Initialize observation display TextView
-//        observationPressure = findViewById(R.id.observationPressure); // Initialize observation display TextView
-//        observationVisibility = findViewById(R.id.observationVisibility); // Initialize observation display TextView
-//        observationDate = findViewById(R.id.observationDate); // Initialize observation display TextView
         prevButton = findViewById(R.id.prevButton);
         nextButton = findViewById(R.id.nextButton);
         navigateButton = findViewById(R.id.navigateButton);
@@ -160,6 +157,44 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Fetch and display observation data
         fetchAndDisplayObservationData(currentLocation);
+
+        // Initialize georssPoint (this should be retrieved from your forecastData)
+        georssPoint = "23.7104 90.4074"; // Example georssPoint
+
+        // Call fetchForecastData with a callback
+        fetchForecastData(currentLocation, new ForecastDataCallback() {
+            public void onForecastDataReceived(Map<String, Object> forecast) {
+                setgeoRssPoint(forecast);
+            }
+        });
+
+        Log.d("Exterior GeoRSS Point", georssPoint);
+
+        // Find the map fragment
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        // Split the georssPoint into latitude and longitude
+        String[] latLng = georssPoint.split(" ");
+        if (latLng.length == 2) {
+            double latitude = Double.parseDouble(latLng[0]);
+            double longitude = Double.parseDouble(latLng[1]);
+
+            // Add a marker at the specified coordinates
+            LatLng location = new LatLng(latitude, longitude);
+            mMap.addMarker(new MarkerOptions().position(location).title("Marker in Location"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12)); // Zoom level 12
+        }
+    }
+
+    private String setgeoRssPoint(Map<String, Object> forecast) {
+        georssPoint = forecast.get("georssPoint").toString();
+        return forecast.get("georssPoint").toString();
     }
 
     @Override
@@ -169,11 +204,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
+            fetchForecastData(currentLocation, new ForecastDataCallback() {
+                @Override
+                public void onForecastDataReceived(Map<String, Object> forecast) {
+                    // Update georssPoint and map when new forecast data is received
+                    setGeoRssPointAndMap(forecast);
+                }
+            });
         } else if (v.getId() == R.id.nextButton) {
             currentLocationIndex = (currentLocationIndex + 1) % locations.size();
             currentLocation = locations.get(currentLocationIndex);
             fetchAndDisplayForecastData(currentLocation);
             fetchAndDisplayObservationData(currentLocation);
+            fetchForecastData(currentLocation, new ForecastDataCallback() {
+                @Override
+                public void onForecastDataReceived(Map<String, Object> forecast) {
+                    // Update georssPoint and map when new forecast data is received
+                    setGeoRssPointAndMap(forecast);
+                }
+            });
         } else if (v.getId() == R.id.navigateButton) {
             currentLocation = locations.get(currentLocationIndex);
             // Call fetchObservationData with a callback
@@ -212,6 +261,49 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         intent.putExtra("location", location);
         startActivity(intent);
     }
+
+    private void setGeoRssPointAndMap(Map<String, Object> forecast) {
+        // Set the new georssPoint
+        if (forecast.containsKey("georssPoint")) {
+            Object georssObj = forecast.get("georssPoint");
+            if (georssObj instanceof String) {
+                georssPoint = (String) georssObj;
+                Log.d("forecast for GeoRSS Point", georssPoint);
+                
+                // Update the map with the new georssPoint on the main thread
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateMapWithNewPoint(georssPoint);
+                    }
+                });
+            } else {
+                Log.e("TAG", "georssPoint is not a String");
+            }
+        } else {
+            Log.e("TAG", "forecast does not contain georssPoint key");
+        }
+    }    
+    
+    private void updateMapWithNewPoint(String newGeorssPoint) {
+        // Check if map is initialized
+        if (mMap != null) {
+            // Split the georssPoint into latitude and longitude
+            String[] latLng = newGeorssPoint.split(" ");
+            if (latLng.length == 2) {
+                double latitude = Double.parseDouble(latLng[0]);
+                double longitude = Double.parseDouble(latLng[1]);
+    
+                // Clear existing markers
+                mMap.clear();
+    
+                // Add a new marker at the specified coordinates
+                LatLng location = new LatLng(latitude, longitude);
+                mMap.addMarker(new MarkerOptions().position(location).title("Marker in Location"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12)); // Zoom level 12
+            }
+        }
+    }        
 
     private void fetchAndDisplayForecastData(String location) {
         String locationCode = locationCodes.get(location);
