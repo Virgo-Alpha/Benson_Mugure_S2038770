@@ -82,13 +82,13 @@
                 android:text="@string/navigate" />
 
         </LinearLayout>
-        
+
         <RelativeLayout
             android:id="@+id/forecast"
-            android:layout_width="340dp"
+            android:layout_width="362dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/currentWeather"
-            android:layout_marginTop="41dp"
+            android:layout_marginTop="9dp"
             android:background="@drawable/smaller_border"
             android:padding="10dp">
 
@@ -111,7 +111,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="20dp">
+                    android:padding="10dp">
+
                 </LinearLayout>
 
             </ScrollView>
@@ -123,9 +124,11 @@
                 android:layout_below="@id/ForecastScrollView"
                 android:layout_gravity="bottom|end"
                 android:layout_margin="16dp"
+                android:layout_marginTop="27dp"
+                android:layout_marginBottom="16dp"
                 android:text="@string/navigate"
                 android:textSize="14sp" />
-        
+
         </RelativeLayout>
 
         <Button

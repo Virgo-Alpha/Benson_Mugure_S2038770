@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -94,14 +95,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         // Initialize icons
         weatherIcons.put("Sunny", R.drawable.day_clear);
-        weatherIcons.put("Partly Cloudy", R.drawable.day_partial_cloud);
-        weatherIcons.put("Mostly Cloudy", R.drawable.cloudy);
+        weatherIcons.put("Clear Sky", R.drawable.night_clear);
+        weatherIcons.put("Sunny Intervals", R.drawable.day_clear);
+        weatherIcons.put("Light Cloud", R.drawable.day_partial_cloud);
+        weatherIcons.put("Thick Cloud", R.drawable.cloudy);
         weatherIcons.put("Overcast", R.drawable.overcast);
         weatherIcons.put("Rain", R.drawable.day_rain);
-        weatherIcons.put("Rain and Thunderstorms", R.drawable.day_rain_thunder);
-        weatherIcons.put("Light Rain", R.drawable.day_rain);
+        weatherIcons.put("Thundery Showers", R.drawable.day_rain_thunder);
+        weatherIcons.put("Light Rain", R.drawable.sleet);
         // Add more day icons as needed: sleet, snow, fog, thunder, mist
-        weatherIcons.put("Sleet", R.drawable.sleet);
+        weatherIcons.put("Drizzle", R.drawable.sleet);
         weatherIcons.put("Snow", R.drawable.day_snow);
         weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
         weatherIcons.put("Fog", R.drawable.fog);
@@ -496,11 +499,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 dayTextView.setTypeface(null, Typeface.BOLD);
                 forecastItemLayout.addView(dayTextView);
 
-                TextView weatherTextView = new TextView(this);
-                weatherTextView.setText(forecastInfo.get("weather").get(i));
-                weatherTextView.setTextSize(16);
-                weatherTextView.setTextColor(Color.BLACK);
-                forecastItemLayout.addView(weatherTextView);
+                // ! Make icons instead here
+//                TextView weatherTextView = new TextView(this);
+//                weatherTextView.setText(forecastInfo.get("weather").get(i));
+//                weatherTextView.setTextSize(16);
+//                weatherTextView.setTextColor(Color.BLACK);
+//                forecastItemLayout.addView(weatherTextView);
+
+                ImageView weatherIconView = new ImageView(this);
+
+                // Use the weatherIcons HashMap to set the icon
+                Integer iconRes = weatherIcons.get(forecastInfo.get("weather").get(i));
+                if (iconRes != null) {
+                    weatherIconView.setImageResource(iconRes);
+                }
+                weatherIconView.setMaxWidth(10);
+                weatherIconView.setMaxHeight(10);
+                forecastItemLayout.addView(weatherIconView);
+
+                // Set the max width and max height
+                int maxWidthDp = 80;
+                int maxHeightDp = 50;
+                int maxWidthPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, maxWidthDp, getResources().getDisplayMetrics());
+                int maxHeightPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, maxHeightDp, getResources().getDisplayMetrics());
+
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(maxWidthPx, maxHeightPx);
+                weatherIconView.setLayoutParams(layoutParams);
 
                 TextView tempTextView = new TextView(this);
                 tempTextView.setText(forecastInfo.get("temperature").get(i));
