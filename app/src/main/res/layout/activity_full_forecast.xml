@@ -31,6 +31,7 @@
                 android:layout_centerHorizontal="true"/>
 
             <LinearLayout
+                android:id="@+id/Linear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -47,7 +48,19 @@
                     tools:text="Day: Sunny" />
 
             </LinearLayout>
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Back"
+                android:layout_below="@id/Linear"
+                android:layout_marginTop="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
         </RelativeLayout>
+        
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

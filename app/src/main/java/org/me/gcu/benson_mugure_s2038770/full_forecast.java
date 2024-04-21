@@ -3,6 +3,7 @@ package org.me.gcu.benson_mugure_s2038770;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -57,5 +58,15 @@ public class full_forecast extends AppCompatActivity {
                 locationTextView.setVisibility(View.VISIBLE); // Show the location display TextView
             }
         }
+
+        // Set up back button click listener
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Finish the current activity to go back
+                finish();
+            }
+        });
     }
 }
