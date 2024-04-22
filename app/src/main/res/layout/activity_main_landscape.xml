@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp"
+    android:scrollbars="vertical"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Left Side: Forecast and Navigation -->
+        <LinearLayout
+            android:layout_width="93dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- Forecast and Navigation -->
+
+            <LinearLayout
+                android:id="@+id/currentWeather"
+                android:layout_width="198dp"
+                android:layout_height="302dp"
+                android:background="@drawable/border_black"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/locationDisplay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/location"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <!-- Current Weather -->
+                <TextView
+                    android:id="@+id/currentWeatherTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="Current Weather: Wed, 17 Apr 2024 09:00:00 GMT"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <!-- Temperature and Weather -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- Large Temperature -->
+
+                    <!-- Replace the above with weatherIconView -->
+
+                    <ImageView
+                        android:id="@+id/weatherIcon"
+                        android:layout_width="82dp"
+                        android:layout_height="75dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="weather_icon"
+                        android:paddingEnd="75dp"
+                        android:src="@drawable/ic_launcher_foreground" />
+
+                    <TextView
+                        android:id="@+id/observationTitleTemperature"
+                        android:layout_width="151dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="25°C"
+                        android:textSize="25dp"
+                        android:textStyle="bold" />
+
+
+                </LinearLayout>
+
+                <!-- Navigate Button -->
+                <Button
+                    android:id="@+id/navigateButton"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/navigate" />
+
+                <Button
+                    android:id="@+id/prevButton"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@id/forecast"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/previous" />
+
+                <Button
+                    android:id="@+id/nextButton"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@id/forecast"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/next" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/forecast"
+                android:layout_width="198dp"
+                android:layout_height="match_parent"
+                android:layout_below="@id/currentWeather"
+                android:background="@drawable/smaller_border"
+                android:padding="10dp">
+
+                <ScrollView
+                    android:id="@+id/ForecastScrollView"
+                    android:layout_width="188dp"
+                    android:layout_height="223dp">
+
+                    <LinearLayout
+                        android:id="@+id/forecastContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="2dp">
+
+                    </LinearLayout>
+
+                </ScrollView>
+
+                <Button
+                    android:id="@+id/seeFullForecastButton"
+                    android:layout_width="128dp"
+                    android:layout_height="36dp"
+                    android:layout_below="@id/ForecastScrollView"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
+                    android:text="@string/navigate"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <!-- Right Side: Map -->
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+        </FrameLayout>
+
+    </LinearLayout>
+</ScrollView>

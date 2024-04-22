@@ -13,7 +13,7 @@ Steps
 -- 4. Create the second page for the 3-day forecast
 -- 4. Add the icons and the map
 -- 5. Make the 3-day forecasts as links to child pages
-5. Landscape view
+5. Landscape view ... // Debug this
 6. No internet rxn
 7. Settings for autorefresh on load and manually set by user and  other settings
 8. Dark mode

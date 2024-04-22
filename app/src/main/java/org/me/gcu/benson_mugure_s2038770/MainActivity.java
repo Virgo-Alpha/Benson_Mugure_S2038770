@@ -10,6 +10,7 @@ package org.me.gcu.benson_mugure_s2038770;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -79,28 +80,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String georssPoint; // Georss point from your data
 
     private HashMap<String, Integer> weatherIcons = new HashMap<>();
-    // ! private HashMap<String, Integer> nightIcons = new HashMap<>();
-
-    // // Initialize night icons: similar as for day but with night prefix
-    // nightIcons.put("Sunny", R.drawable.night_clear);
-    // nightIcons.put("Partly Cloudy", R.drawable.night_partial_cloud);
-    // nightIcons.put("Mostly Cloudy", R.drawable.cloudy);
-    // nightIcons.put("Overcast", R.drawable.overcast);
-    // nightIcons.put("Rain", R.drawable.night_rain);
-    // nightIcons.put("Rain and Thunderstorms", R.drawable.night_rain_thunder);
-    // nightIcons.put("Light Rain", R.drawable.night_rain);
-    // // Add more night icons as needed: sleet, snow, fog, thunder, mist
-    // nightIcons.put("Sleet", R.drawable.night_sleet);
-    // nightIcons.put("Snow", R.drawable.night_snow);
-    // nightIcons.put("Snow and Thunderstorms", R.drawable.night_snow_thunder);
-    // nightIcons.put("Fog", R.drawable.fog);
-    // nightIcons.put("Thunder", R.drawable.thunder);
-    // nightIcons.put("Mist", R.drawable.mist);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Check the current device orientation
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setContentView(R.layout.activity_main_landscape);
+        } else {
+            // Log.d("Landscape saved data: ", savedInstanceState.toString());
+            setContentView(R.layout.activity_main);
+        }
 
         // Initialize icons
         weatherIcons.put("Sunny", R.drawable.day_clear);
@@ -112,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         weatherIcons.put("Rain", R.drawable.day_rain);
         weatherIcons.put("Thundery Showers", R.drawable.day_rain_thunder);
         weatherIcons.put("Light Rain", R.drawable.sleet);
-        // Add more day icons as needed: sleet, snow, fog, thunder, mist
+        weatherIcons.put("Light Rain Showers", R.drawable.sleet);
         weatherIcons.put("Drizzle", R.drawable.sleet);
         weatherIcons.put("Snow", R.drawable.day_snow);
         weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
@@ -121,20 +114,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         weatherIcons.put("Mist", R.drawable.mist);
         weatherIcons.put("Tornado", R.drawable.tornado);
         weatherIcons.put("Wind", R.drawable.wind);
-
-        // Initialize UI components
-        observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
-        currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
-        prevButton = findViewById(R.id.prevButton);
-        nextButton = findViewById(R.id.nextButton);
-        navigateButton = findViewById(R.id.navigateButton);
-        seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
-        locationDisplay = findViewById(R.id.locationDisplay);
-        
-        prevButton.setOnClickListener(this);
-        nextButton.setOnClickListener(this);
-        navigateButton.setOnClickListener(this);
-        seeFullForecastButton.setOnClickListener(this);
 
         // Initialize location codes
         locationCodes = new HashMap<>();
@@ -152,6 +131,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         currentLocation = locations.get(0);
         currentLocationIndex = 0;
 
+        // Initialize UI components
+        observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
+        currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
+        prevButton = findViewById(R.id.prevButton);
+        nextButton = findViewById(R.id.nextButton);
+        navigateButton = findViewById(R.id.navigateButton);
+        seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
+        locationDisplay = findViewById(R.id.locationDisplay);
+
+        prevButton.setOnClickListener(this);
+        nextButton.setOnClickListener(this);
+        navigateButton.setOnClickListener(this);
+        seeFullForecastButton.setOnClickListener(this);
+
         // Fetch and display forecast data for the default location
         fetchAndDisplayForecastData(currentLocation);
 
@@ -168,33 +161,103 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
         });
 
-        Log.d("Exterior GeoRSS Point", georssPoint);
+        // Find the map fragment or create a new one if it doesn't exist
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapContainer);
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.mapContainer, mapFragment)
+                    .commit();
+        }
 
-        // Find the map fragment
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        // Initialize the map when it's ready
         mapFragment.getMapAsync(this);
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Split the georssPoint into latitude and longitude
-        String[] latLng = georssPoint.split(" ");
-        if (latLng.length == 2) {
-            double latitude = Double.parseDouble(latLng[0]);
-            double longitude = Double.parseDouble(latLng[1]);
+        if (georssPoint != null) {
+            // Split the georssPoint into latitude and longitude
+            String[] latLng = georssPoint.split(" ");
+            if (latLng.length == 2) {
+                double latitude = Double.parseDouble(latLng[0]);
+                double longitude = Double.parseDouble(latLng[1]);
 
-            // Add a marker at the specified coordinates
-            LatLng location = new LatLng(latitude, longitude);
-            mMap.addMarker(new MarkerOptions().position(location).title("Marker in Location"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12)); // Zoom level 12
+                // Add a marker at the specified coordinates
+                LatLng location = new LatLng(latitude, longitude);
+                mMap.addMarker(new MarkerOptions().position(location).title("Marker in Location"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12)); // Zoom level 12
+            }
         }
     }
 
     private String setgeoRssPoint(Map<String, Object> forecast) {
         georssPoint = forecast.get("georssPoint").toString();
         return forecast.get("georssPoint").toString();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setContentView(R.layout.activity_main_landscape);
+        } else {
+            setContentView(R.layout.activity_main);
+        }
+
+        // Initialize UI components
+        observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
+        currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
+        prevButton = findViewById(R.id.prevButton);
+        nextButton = findViewById(R.id.nextButton);
+        navigateButton = findViewById(R.id.navigateButton);
+        seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
+        locationDisplay = findViewById(R.id.locationDisplay);
+
+        prevButton.setOnClickListener(this);
+        nextButton.setOnClickListener(this);
+        navigateButton.setOnClickListener(this);
+        seeFullForecastButton.setOnClickListener(this);
+
+        // Fetch and display forecast data for the default location
+        fetchAndDisplayForecastData(currentLocation);
+
+        // Fetch and display observation data
+        fetchAndDisplayObservationData(currentLocation);
+
+        // Initialize georssPoint (this should be retrieved from your forecastData)
+        georssPoint = "23.7104 90.4074"; // Example georssPoint
+
+        // Call fetchForecastData with a callback
+        fetchForecastData(currentLocation, new ForecastDataCallback() {
+            public void onForecastDataReceived(Map<String, Object> forecast) {
+                setgeoRssPoint(forecast);
+                Log.d("forecast for GeoRSS Point", georssPoint);
+            }
+        });
+
+        // The map fragment already exists, no need to replace it
+        SupportMapFragment mapFragment = SupportMapFragment.newInstance();
+
+        // Set the OnMapReadyCallback before committing the fragment transaction
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                // Here you can customize the map if needed
+                mMap = googleMap;
+                Log.d("Map Fragment: ", "The map is ready!");
+            }
+        });
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.mapContainer, mapFragment)
+                .commit();
+
+        // Initialize the map when it's ready
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -268,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             Object georssObj = forecast.get("georssPoint");
             if (georssObj instanceof String) {
                 georssPoint = (String) georssObj;
-                Log.d("forecast for GeoRSS Point", georssPoint);
                 
                 // Update the map with the new georssPoint on the main thread
                 runOnUiThread(new Runnable() {
@@ -540,6 +602,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             String weatherForecast = "";
                             if (dayWeatherParts.length == 2) {
                                 day = dayWeatherParts[0].trim(); // Extract Day
+                                if (day.length() >= 6 && !day.equals("Tonight")) {
+                                    day = day.substring(0, 3);
+                                }
                                 weatherForecast = dayWeatherParts[1].trim(); // Extract Weather Forecast
                             }
 
