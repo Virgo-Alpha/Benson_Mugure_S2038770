@@ -21,6 +21,7 @@
     <string name="visibility">Visibility: </string>
     <string name="date">Date: </string>
     <string name="navigate">See more </string>
+    <string name="internet">Please check your internet connection and try again. </string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -58,4 +59,6 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="weather_icon">weather_icon</string>
+    <string name="temp">25°C</string>
 </resources>

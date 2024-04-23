@@ -1,0 +1,31 @@
+<!-- activity_no_internet.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <!-- Bagel image -->
+    <ImageView
+        android:id="@+id/bagelImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/bagel"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/internet" />
+
+    <!-- Text message -->
+    <TextView
+        android:id="@+id/noInternetMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/internet"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_below="@id/bagelImage"
+        android:layout_marginTop="16dp"
+        android:layout_margin="16dp"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

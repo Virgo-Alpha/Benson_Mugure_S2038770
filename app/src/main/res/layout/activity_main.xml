@@ -56,7 +56,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:textSize="48sp"
-                    android:text="25°C"
+                    android:text="@string/temp"
                     android:textStyle="bold" />
 
                 <!-- Replace the above with weatherIconView -->
@@ -65,7 +65,7 @@
                     android:layout_width="166dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:contentDescription="weather_icon"
+                    android:contentDescription="@string/weather_icon"
                     android:paddingEnd="20dp"
                     android:src="@drawable/ic_launcher_foreground" />
 

@@ -9,11 +9,18 @@ package org.me.gcu.benson_mugure_s2038770;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -45,6 +52,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, OnMapReadyCallback {
     private TextView forecastDisplay;
@@ -79,100 +87,165 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private GoogleMap mMap;
     private String georssPoint; // Georss point from your data
 
+    private NetworkChangeReceiver networkChangeReceiver;
+    private Handler handler = new Handler(Looper.getMainLooper());
+
     private HashMap<String, Integer> weatherIcons = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        // Check the current device orientation
-        int orientation = getResources().getConfiguration().orientation;
-        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setContentView(R.layout.activity_main_landscape);
+        // Register the network change receiver
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        networkChangeReceiver = new NetworkChangeReceiver();
+        registerReceiver(networkChangeReceiver, filter);
+
+        // Check if there is internet and if there isn't, display a bagel and a message
+        if (networkChangeReceiver.isInternetConnected(this)) {
+            setContentView(R.layout.activity_no_internet);
         } else {
-            // Log.d("Landscape saved data: ", savedInstanceState.toString());
-            setContentView(R.layout.activity_main);
-        }
+            // setContentView(R.layout.activity_main);
+            Log.d("Internet Connection", "INTERNET!");
+        
 
-        // Initialize icons
-        weatherIcons.put("Sunny", R.drawable.day_clear);
-        weatherIcons.put("Clear Sky", R.drawable.night_clear);
-        weatherIcons.put("Sunny Intervals", R.drawable.day_clear);
-        weatherIcons.put("Light Cloud", R.drawable.day_partial_cloud);
-        weatherIcons.put("Thick Cloud", R.drawable.cloudy);
-        weatherIcons.put("Overcast", R.drawable.overcast);
-        weatherIcons.put("Rain", R.drawable.day_rain);
-        weatherIcons.put("Thundery Showers", R.drawable.day_rain_thunder);
-        weatherIcons.put("Light Rain", R.drawable.sleet);
-        weatherIcons.put("Light Rain Showers", R.drawable.sleet);
-        weatherIcons.put("Drizzle", R.drawable.sleet);
-        weatherIcons.put("Snow", R.drawable.day_snow);
-        weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
-        weatherIcons.put("Fog", R.drawable.fog);
-        weatherIcons.put("Thunder", R.drawable.thunder);
-        weatherIcons.put("Mist", R.drawable.mist);
-        weatherIcons.put("Tornado", R.drawable.tornado);
-        weatherIcons.put("Wind", R.drawable.wind);
-
-        // Initialize location codes
-        locationCodes = new HashMap<>();
-        locationCodes.put("Glasgow", "2648579");
-        locationCodes.put("London", "2643743");
-        locationCodes.put("NewYork", "5128581");
-        locationCodes.put("Oman", "287286");
-        locationCodes.put("Mauritius", "934154");
-        locationCodes.put("Bangladesh", "1185241");
-
-        // Initialize locations
-        locations = new ArrayList<>(locationCodes.keySet());
-
-        // Set default location and index
-        currentLocation = locations.get(0);
-        currentLocationIndex = 0;
-
-        // Initialize UI components
-        observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
-        currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
-        prevButton = findViewById(R.id.prevButton);
-        nextButton = findViewById(R.id.nextButton);
-        navigateButton = findViewById(R.id.navigateButton);
-        seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
-        locationDisplay = findViewById(R.id.locationDisplay);
-
-        prevButton.setOnClickListener(this);
-        nextButton.setOnClickListener(this);
-        navigateButton.setOnClickListener(this);
-        seeFullForecastButton.setOnClickListener(this);
-
-        // Fetch and display forecast data for the default location
-        fetchAndDisplayForecastData(currentLocation);
-
-        // Fetch and display observation data
-        fetchAndDisplayObservationData(currentLocation);
-
-        // Initialize georssPoint (this should be retrieved from your forecastData)
-        georssPoint = "23.7104 90.4074"; // Example georssPoint
-
-        // Call fetchForecastData with a callback
-        fetchForecastData(currentLocation, new ForecastDataCallback() {
-            public void onForecastDataReceived(Map<String, Object> forecast) {
-                setgeoRssPoint(forecast);
+            // Check the current device orientation
+            int orientation = getResources().getConfiguration().orientation;
+            if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                setContentView(R.layout.activity_main_landscape);
+            } else {
+                // Log.d("Landscape saved data: ", savedInstanceState.toString());
+                setContentView(R.layout.activity_main);
             }
-        });
 
-        // Find the map fragment or create a new one if it doesn't exist
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapContainer);
-        if (mapFragment == null) {
-            mapFragment = SupportMapFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.mapContainer, mapFragment)
-                    .commit();
+            // Initialize icons
+            weatherIcons.put("Sunny", R.drawable.day_clear);
+            weatherIcons.put("Clear Sky", R.drawable.night_clear);
+            weatherIcons.put("Sunny Intervals", R.drawable.day_clear);
+            weatherIcons.put("Light Cloud", R.drawable.day_partial_cloud);
+            weatherIcons.put("Thick Cloud", R.drawable.cloudy);
+            weatherIcons.put("Overcast", R.drawable.overcast);
+            weatherIcons.put("Rain", R.drawable.day_rain);
+            weatherIcons.put("Thundery Showers", R.drawable.day_rain_thunder);
+            weatherIcons.put("Light Rain", R.drawable.sleet);
+            weatherIcons.put("Light Rain Showers", R.drawable.sleet);
+            weatherIcons.put("Drizzle", R.drawable.sleet);
+            weatherIcons.put("Snow", R.drawable.day_snow);
+            weatherIcons.put("Snow and Thunderstorms", R.drawable.day_snow_thunder);
+            weatherIcons.put("Fog", R.drawable.fog);
+            weatherIcons.put("Thunder", R.drawable.thunder);
+            weatherIcons.put("Mist", R.drawable.mist);
+            weatherIcons.put("Tornado", R.drawable.tornado);
+            weatherIcons.put("Wind", R.drawable.wind);
+
+            // Initialize location codes
+            locationCodes = new HashMap<>();
+            locationCodes.put("Glasgow", "2648579");
+            locationCodes.put("London", "2643743");
+            locationCodes.put("NewYork", "5128581");
+            locationCodes.put("Oman", "287286");
+            locationCodes.put("Mauritius", "934154");
+            locationCodes.put("Bangladesh", "1185241");
+
+            // Initialize locations
+            locations = new ArrayList<>(locationCodes.keySet());
+
+            // Set default location and index
+            currentLocation = locations.get(0);
+            currentLocationIndex = 0;
+
+            // Initialize UI components
+            observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
+            currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
+            prevButton = findViewById(R.id.prevButton);
+            nextButton = findViewById(R.id.nextButton);
+            navigateButton = findViewById(R.id.navigateButton);
+            seeFullForecastButton = findViewById(R.id.seeFullForecastButton);
+            locationDisplay = findViewById(R.id.locationDisplay);
+
+            prevButton.setOnClickListener(this);
+            nextButton.setOnClickListener(this);
+            navigateButton.setOnClickListener(this);
+            seeFullForecastButton.setOnClickListener(this);
+
+            // Fetch and display forecast data for the default location
+            fetchAndDisplayForecastData(currentLocation);
+
+            // Fetch and display observation data
+            fetchAndDisplayObservationData(currentLocation);
+
+            // Initialize georssPoint (this should be retrieved from your forecastData)
+            georssPoint = "23.7104 90.4074"; // Example georssPoint
+
+            // Call fetchForecastData with a callback
+            fetchForecastData(currentLocation, new ForecastDataCallback() {
+                public void onForecastDataReceived(Map<String, Object> forecast) {
+                    setgeoRssPoint(forecast);
+                }
+            });
+
+            // Find the map fragment or create a new one if it doesn't exist
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapContainer);
+            if (mapFragment == null) {
+                mapFragment = SupportMapFragment.newInstance();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.mapContainer, mapFragment)
+                        .commit();
+            }
+
+            // Initialize the map when it's ready
+            mapFragment.getMapAsync(this);
         }
 
-        // Initialize the map when it's ready
-        mapFragment.getMapAsync(this);
+        startInternetCheck();
 
+    }
+
+    private class NetworkChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isInternetConnected(context)) {
+                Log.d("Internet Connection", "No INTERNET!");
+                // Internet connection is lost, handle accordingly
+                setContentView(R.layout.activity_no_internet);
+            }
+        }
+
+        private boolean isInternetConnected(Context context) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+            return activeNetwork == null || !activeNetwork.isConnectedOrConnecting();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkChangeReceiver);
+        stopInternetCheck();
+    }
+
+    private void startInternetCheck() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkInternetAndDisplayLayout();
+                handler.postDelayed(this, 5000); // Check every 5 seconds
+            }
+        }, 5000); // Start after 5 seconds
+    }
+
+    private void stopInternetCheck() {
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    private void checkInternetAndDisplayLayout() {
+        if (networkChangeReceiver.isInternetConnected(this)) {
+            setContentView(R.layout.activity_no_internet);
+        }
+
+        // Implement method to reload automatically if internet has returned
     }
 
     @Override
@@ -555,18 +628,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void displayForecastData(Map<String, Object> forecastData) {
-//        TextView day1TextView = findViewById(R.id.day1TextView);
-//        TextView weather1TextView = findViewById(R.id.weather1TextView);
-//        TextView temp1TextView = findViewById(R.id.temp1TextView);
-//
-//        TextView day2TextView = findViewById(R.id.day2TextView);
-//        TextView weather2TextView = findViewById(R.id.weather2TextView);
-//        TextView temp2TextView = findViewById(R.id.temp2TextView);
-//
-//        TextView day3TextView = findViewById(R.id.day3TextView);
-//        TextView weather3TextView = findViewById(R.id.weather3TextView);
-//        TextView temp3TextView = findViewById(R.id.temp3TextView);
-
         StringBuilder displayText = new StringBuilder();
 
         // Extracting location
