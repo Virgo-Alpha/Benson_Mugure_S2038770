@@ -8,6 +8,7 @@
 package org.me.gcu.benson_mugure_s2038770;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,9 +27,13 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -45,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Calendar;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -88,13 +94,33 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String georssPoint; // Georss point from your data
 
     private NetworkChangeReceiver networkChangeReceiver;
-    private Handler handler = new Handler(Looper.getMainLooper());
 
     private HashMap<String, Integer> weatherIcons = new HashMap<>();
+
+    private static final long DEFAULT_MORNING_TIME = 8 * 60 * 60 * 1000; // 08:00 in milliseconds
+    private static final long DEFAULT_EVENING_TIME = 20 * 60 * 60 * 1000; // 20:00 in milliseconds
+
+    private long morningUpdateTime;
+    private long eveningUpdateTime;
+
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable dataRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            checkAndUpdateData();
+            handler.postDelayed(this, 60000); // Check every minute
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set default update times
+        setDefaultUpdateTimes();
+
+        // Start checking and updating data
+        startDataRefreshScheduler();
 
         // Register the network change receiver
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -116,6 +142,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             } else {
                 // Log.d("Landscape saved data: ", savedInstanceState.toString());
                 setContentView(R.layout.activity_main);
+            }
+
+            // Apply dark mode if enabled
+            SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+            boolean darkModeEnabled = sharedPreferences.getBoolean("darkMode", false);
+            if (darkModeEnabled) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
 
             // Initialize icons
@@ -155,6 +190,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             currentLocationIndex = 0;
 
             // Initialize UI components
+
+            // Find the ImageButton for the settings icon
+            ImageButton settingsButton = findViewById(R.id.settingsButton);
+
+            // Set click listener for the settings button
+            settingsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Open SettingsActivity when settings button is clicked
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                }
+            });
+            
             observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
             currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
             prevButton = findViewById(R.id.prevButton);
@@ -201,6 +250,84 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
+    private void setDefaultUpdateTimes() {
+        // Get the SharedPreferences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Check if default times are already set
+        if (!preferences.contains("morning_time") || !preferences.contains("evening_time")) {
+            // Set default morning and evening update times
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putLong("morning_time", DEFAULT_MORNING_TIME);
+            editor.putLong("evening_time", DEFAULT_EVENING_TIME);
+            editor.apply();
+        }
+
+        // Retrieve the update times
+        morningUpdateTime = preferences.getLong("morning_time", DEFAULT_MORNING_TIME);
+        eveningUpdateTime = preferences.getLong("evening_time", DEFAULT_EVENING_TIME);
+    }
+
+    // ! Method to refresh data based on selected time
+    private void refreshDataAtSelectedTime(long updateTimeMillis) {
+        // Get the current time
+        Calendar calendar = Calendar.getInstance();
+        long currentTimeMillis = calendar.getTimeInMillis();
+
+        // Calculate the time difference
+        long timeDifference = updateTimeMillis - currentTimeMillis;
+
+        // Check if the time difference is negative
+        if (timeDifference < 0) {
+            // If the time difference is negative, add 24 hours to the time difference
+            timeDifference += 24 * 60 * 60 * 1000;
+        }
+
+        // Schedule the refresh task
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Refresh the data
+                fetchAndDisplayForecastData(currentLocation);
+                fetchAndDisplayObservationData(currentLocation);
+                fetchForecastData(currentLocation, new ForecastDataCallback() {
+                    @Override
+                    public void onForecastDataReceived(Map<String, Object> forecast) {
+                        // Update georssPoint and map when new forecast data is received
+                        setGeoRssPointAndMap(forecast);
+                    }
+                });
+
+                // Schedule the next refresh
+                refreshDataAtSelectedTime(updateTimeMillis);
+            }
+        }, timeDifference);
+    }
+
+    // Method to check if it's time to refresh data
+    private void checkAndUpdateData() {
+        Calendar now = Calendar.getInstance();
+        long currentTimeMillis = now.getTimeInMillis();
+
+        if (currentTimeMillis >= morningUpdateTime && currentTimeMillis < morningUpdateTime + 60000) {
+            // It's morning update time (+/- 1 minute for accuracy)
+            refreshDataAtSelectedTime(morningUpdateTime);
+        } else if (currentTimeMillis >= eveningUpdateTime && currentTimeMillis < eveningUpdateTime + 60000) {
+            // It's evening update time (+/- 1 minute for accuracy)
+            refreshDataAtSelectedTime(eveningUpdateTime);
+        }
+    }
+
+    // Method to start data refresh scheduler
+    private void startDataRefreshScheduler() {
+        handler.post(dataRefreshRunnable); // Start the scheduler
+    }
+
+    // Method to stop data refresh scheduler
+    private void stopDataRefreshScheduler() {
+        handler.removeCallbacks(dataRefreshRunnable); // Stop the scheduler
+    }
+
     private class NetworkChangeReceiver extends BroadcastReceiver {
 
         @Override
@@ -224,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onDestroy();
         unregisterReceiver(networkChangeReceiver);
         stopInternetCheck();
+        stopDataRefreshScheduler();
     }
 
     private void startInternetCheck() {
@@ -783,7 +911,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 temperatureTextView.setText(temperatureCelsius);
             }
 
-            // ! Display Weather Icon
+            // Display Weather Icon
             String weather = observation.get("Weather");
             if (weather != null && !weather.equals("Not available")) {
                 // TextView weatherTextView = findViewById(R.id.observationWeather);
