@@ -15,8 +15,10 @@ Steps
 -- 5. Make the 3-day forecasts as links to child pages
 -- 5. Landscape view ... // Debug this
 -- 6. No internet rxn
-7. Settings for autorefresh on load and manually set by user and  other settings
-8. Dark mode
-9. Alerts with emails etc.
-10. Starting thumbnail
-11. Hosting and deployment; apk file, aws, etc.
+-- 7. Settings for autorefresh on load and manually set by user and  other settings
+-- 8. Dark mode
+9. Side menu: Home, Settings, Notifications, About, Help, Exit
+10. Generate .apk file
+11. Documented testing strategy
+12. Record video of the app in action
+13. Hosting and deployment; apk file, aws, etc.
