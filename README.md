@@ -17,8 +17,8 @@ Steps
 -- 6. No internet rxn
 -- 7. Settings for autorefresh on load and manually set by user and  other settings
 -- 8. Dark mode
-9. Side menu: Home, Settings, Notifications, About, Help, Exit
-10. Generate .apk file
+9. Side menu: Home, Settings (Timepicker, dark mode, language), Notifications(city, freq: daily, weekly; means: popup, sms, email), About, Help, Exit
+10. Generate .apk file: [course](https://www.linkedin.com/learning/android-studio-essential-training-14266841/configure-android-studio?u=39683156)
 11. Documented testing strategy
 12. Record video of the app in action
 13. Hosting and deployment; apk file, aws, etc.
