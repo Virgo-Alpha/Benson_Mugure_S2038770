@@ -8,6 +8,7 @@
 package org.me.gcu.benson_mugure_s2038770;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -229,10 +231,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         startActivity(intent);
                     } else if (id == R.id.nav_help) {
                         // Handle the help action
+                        Intent intent = new Intent(MainActivity.this, HelpActivity.class);
+                        startActivity(intent);
                     } else if (id == R.id.nav_notifications) {
                         // Handle the notifications action
                     } else if (id == R.id.nav_exit) {
                         // Handle the exit action
+                        showExitDialog();
                     }
 
                     DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -241,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
 
             });
-
 
             observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
             currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
@@ -287,6 +291,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         startInternetCheck();
 
+    }
+
+    private void showExitDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Exit the application
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     private void setDefaultUpdateTimes() {

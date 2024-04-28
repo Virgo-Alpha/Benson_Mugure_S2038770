@@ -82,4 +82,13 @@
     <string name="gear">Settings</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="back">Back</string>
+    <string name="help_text">
+        - On loading, you see the home page that has the current weather, three day forecast and map of a certain location. You can flip through the locations by pressing the next and previous buttons and the information will change accordingly\n\n
+        - You can see more about current weather by pressing the see more button in that section. The three day weather forecast works the same\n\n
+        - The locations are New York, Bangladesh, Glasgow, Mauritius, Oman and Bangladesh. Theses are where GCU has its campuses\n\n
+        - There is a side menu that you can access by clicking the icon on the top left\n\n
+        - The menu has the options for home, settings, help, notifications and exit\n\n
+        - Pressing exit brings a pop up that lets you confirm your choice\n\n
+        - In the settings, the user can pick dark or light mode as well as when to refresh the app\n</string>
+    <string name="Help">User Manual</string>
 </resources>
