@@ -7,8 +7,11 @@
 // // UPDATE THE PACKAGE NAME to include your Student Identifier
 package org.me.gcu.benson_mugure_s2038770;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,6 +27,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -58,6 +62,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, OnMapReadyCallback {
@@ -194,16 +199,50 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // Find the ImageButton for the settings icon
             ImageButton settingsButton = findViewById(R.id.settingsButton);
 
+            // Find the DrawerLayout
+            DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+
             // Set click listener for the settings button
             settingsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Open SettingsActivity when settings button is clicked
-                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(intent);
+                    // Open the navigation drawer
+                    drawerLayout.openDrawer(GravityCompat.START);
                 }
             });
-            
+
+            NavigationView navigationView = findViewById(R.id.nav_view);
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    // Handle navigation view item clicks here.
+                    int id = item.getItemId();
+
+                    if (id == R.id.nav_home) {
+                        // Handle the home action
+                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(intent);
+                    } else if (id == R.id.nav_settings) {
+                        // Handle the settings action
+                         // Open SettingsActivity when settings button is clicked
+                        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(intent);
+                    } else if (id == R.id.nav_help) {
+                        // Handle the help action
+                    } else if (id == R.id.nav_notifications) {
+                        // Handle the notifications action
+                    } else if (id == R.id.nav_exit) {
+                        // Handle the exit action
+                    }
+
+                    DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                    drawer.closeDrawer(GravityCompat.START);
+                    return true;
+                }
+
+            });
+
+
             observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
             currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
             prevButton = findViewById(R.id.prevButton);
