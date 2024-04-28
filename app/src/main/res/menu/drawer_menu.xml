@@ -9,9 +9,6 @@
         android:id="@+id/nav_help"
         android:title="Help" />
     <item
-        android:id="@+id/nav_notifications"
-        android:title="Notifications" />
-    <item
         android:id="@+id/nav_exit"
         android:title="Exit" />
 </menu>

@@ -1,23 +1,33 @@
 package org.me.gcu.benson_mugure_s2038770;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceFragmentCompat;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.Locale;
 
@@ -31,6 +41,53 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+
+        // Find the ImageButton for the settings icon
+        ImageButton settingsButton = findViewById(R.id.settingsButton);
+
+        // Find the DrawerLayout
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+
+        // Set click listener for the settings button
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open the navigation drawer
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // Handle navigation view item clicks here.
+                int id = item.getItemId();
+
+                if (id == R.id.nav_home) {
+                    // Handle the home action
+                    Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                    startActivity(intent);
+                } else if (id == R.id.nav_settings) {
+                    // Handle the settings action
+                    // Open SettingsActivity when settings button is clicked
+                    Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                } else if (id == R.id.nav_help) {
+                    // Handle the help action
+                    Intent intent = new Intent(SettingsActivity.this, HelpActivity.class);
+                    startActivity(intent);
+                } else if (id == R.id.nav_exit) {
+                    // Handle the exit action
+                    showExitDialog();
+                }
+
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
+        });
 
         timePicker = findViewById(R.id.timePicker);
         saveButton = findViewById(R.id.saveButton);
@@ -103,6 +160,21 @@ public class SettingsActivity extends AppCompatActivity {
     private void applyLightMode() {
         // Apply light mode using setLocalNightMode
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+    }
+
+    private void showExitDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Exit the application
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }
 

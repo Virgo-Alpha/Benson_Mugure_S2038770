@@ -233,8 +233,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         // Handle the help action
                         Intent intent = new Intent(MainActivity.this, HelpActivity.class);
                         startActivity(intent);
-                    } else if (id == R.id.nav_notifications) {
-                        // Handle the notifications action
                     } else if (id == R.id.nav_exit) {
                         // Handle the exit action
                         showExitDialog();
