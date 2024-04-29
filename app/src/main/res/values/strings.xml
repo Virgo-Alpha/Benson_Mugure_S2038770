@@ -91,4 +91,5 @@
         - Pressing exit brings a pop up that lets you confirm your choice\n\n
         - In the settings, the user can pick dark or light mode as well as when to refresh the app\n</string>
     <string name="Help">User Manual</string>
+    <string name="search">search</string>
 </resources>

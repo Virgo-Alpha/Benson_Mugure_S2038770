@@ -40,7 +40,14 @@
                     android:layout_height="wrap_content"
                     android:text="@string/location"
                     android:visibility="gone"
+                    android:layout_marginEnd="30dp"
                     android:textSize="20sp" />
+
+                <Button
+                    android:id="@+id/searchButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search" />
 
             </LinearLayout>
 

@@ -27,15 +27,24 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -86,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Button prevButton;
     private Button nextButton;
     private Button navigateButton;
+    private Button searchButton;
     private Button seeFullForecastButton;
     private TextView locationDisplay;
 
@@ -101,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String georssPoint; // Georss point from your data
 
     private NetworkChangeReceiver networkChangeReceiver;
+
+    private PopupWindow searchPopupWindow;
 
     private HashMap<String, Integer> weatherIcons = new HashMap<>();
 
@@ -245,6 +257,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             });
 
+            Button searchButton = findViewById(R.id.searchButton);
+            searchButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showSearchPopup();
+                }
+            });
+
+
             observationTitleTemperature = findViewById(R.id.observationTitleTemperature); // Initialize observation display TextView
             currentWeatherTextView = findViewById(R.id.currentWeatherTextView);
             prevButton = findViewById(R.id.prevButton);
@@ -283,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         .commit();
             }
 
-            // Initialize the map when it's ready
+            // Initialize the map when it's readyselected
             mapFragment.getMapAsync(this);
         }
 
@@ -304,6 +325,92 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    private void showSearchPopup() {
+        // Inflate the search popup layout
+        View searchPopupView = getLayoutInflater().inflate(R.layout.search_popup, null);
+        final EditText searchEditText = searchPopupView.findViewById(R.id.searchEditText);
+        ListView searchResultsListView = searchPopupView.findViewById(R.id.searchResultsListView);
+
+        // Set up the ListView with an ArrayAdapter
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1);
+        searchResultsListView.setAdapter(adapter);
+
+        // Listen for text changes in the EditText
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Filter the cities based on the user's input
+                List<String> filteredCities = filterCities(s.toString());
+                adapter.clear();
+                adapter.addAll(filteredCities);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Set up the ListView item click listener
+        searchResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedCity = (String) parent.getItemAtPosition(position);
+                currentLocation = selectedCity;
+
+                fetchForecastData(currentLocation, new ForecastDataCallback() {
+                    public void onForecastDataReceived(Map<String, Object> forecast) {
+                        setgeoRssPoint(forecast);
+                        Log.d("GeoRSS", georssPoint);
+                    }
+                });
+                Log.d("Outer GeoRSS", georssPoint);
+
+                // Find the map fragment or create a new one if it doesn't exist
+                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapContainer);
+
+                mapFragment = SupportMapFragment.newInstance();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.mapContainer, mapFragment)
+                        .commit();
+
+
+                // Initialize the map when it's readyselected
+                mapFragment.getMapAsync(MainActivity.this::onMapReady);
+
+                // Call the fetch and display methods using the selected city's name
+                fetchAndDisplayForecastData(selectedCity);
+                fetchAndDisplayObservationData(selectedCity);
+
+                // Dismiss the popup
+                dismissSearchPopup();
+            }
+        });
+
+        Button searchButton = findViewById(R.id.searchButton);
+        // Create a PopupWindow
+        searchPopupWindow = new PopupWindow(searchPopupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        // Show the PopupWindow
+        searchPopupWindow.showAtLocation(searchButton, Gravity.CENTER, 0, 0);
+    }
+
+    private void dismissSearchPopup() {
+        if (searchPopupWindow != null && searchPopupWindow.isShowing()) {
+            searchPopupWindow.dismiss();
+        }
+    }
+
+    private List<String> filterCities(String query) {
+        List<String> filteredCities = new ArrayList<>();
+        for (String city : locationCodes.keySet()) {
+            if (city.toLowerCase().contains(query.toLowerCase())) {
+                filteredCities.add(city);
+            }
+        }
+        return filteredCities;
     }
 
     private void setDefaultUpdateTimes() {

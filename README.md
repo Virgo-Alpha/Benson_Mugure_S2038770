@@ -18,7 +18,7 @@ Steps
 -- 7. Settings for autorefresh on load and manually set by user and  other settings
 -- 8. Dark mode
 9. WiFi debugging (on phone)
--- 10. Side menu: Home, Settings (Timepicker, dark mode, language), Notifications(city, freq: daily, weekly; means: popup, sms, email), About, Help, Exit
+-- 10. Side menu: Home, Settings (Timepicker, dark mode, language), Help, Exit
 11. Search functionality
 12. Unit tests
 13. Generate .apk file: [course](https://www.linkedin.com/learning/android-studio-essential-training-14266841/configure-android-studio?u=39683156)
