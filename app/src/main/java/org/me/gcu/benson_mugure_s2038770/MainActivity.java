@@ -332,16 +332,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         View searchPopupView = getLayoutInflater().inflate(R.layout.search_popup, null);
         final EditText searchEditText = searchPopupView.findViewById(R.id.searchEditText);
         ListView searchResultsListView = searchPopupView.findViewById(R.id.searchResultsListView);
-
+    
         // Set up the ListView with an ArrayAdapter
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1);
         searchResultsListView.setAdapter(adapter);
-
+    
         // Listen for text changes in the EditText
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+    
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // Filter the cities based on the user's input
@@ -349,18 +349,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 adapter.clear();
                 adapter.addAll(filteredCities);
             }
-
+    
             @Override
             public void afterTextChanged(Editable s) {}
         });
-
+    
         // Set up the ListView item click listener
         searchResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String selectedCity = (String) parent.getItemAtPosition(position);
                 currentLocation = selectedCity;
-
+    
                 fetchForecastData(currentLocation, new ForecastDataCallback() {
                     public void onForecastDataReceived(Map<String, Object> forecast) {
                         setgeoRssPoint(forecast);
@@ -368,34 +368,48 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     }
                 });
                 Log.d("Outer GeoRSS", georssPoint);
-
+    
                 // Find the map fragment or create a new one if it doesn't exist
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapContainer);
-
+    
                 mapFragment = SupportMapFragment.newInstance();
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.mapContainer, mapFragment)
                         .commit();
-
-
+    
+    
                 // Initialize the map when it's readyselected
                 mapFragment.getMapAsync(MainActivity.this::onMapReady);
-
+    
                 // Call the fetch and display methods using the selected city's name
                 fetchAndDisplayForecastData(selectedCity);
                 fetchAndDisplayObservationData(selectedCity);
-
+    
                 // Dismiss the popup
                 dismissSearchPopup();
             }
         });
-
+    
+        // Add a semi-transparent view to the main layout to blur the background
+        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().getRootView();
+        View blurView = new View(MainActivity.this);
+        blurView.setBackgroundColor(Color.parseColor("#80000000")); // Semi-transparent black
+        rootView.addView(blurView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    
         Button searchButton = findViewById(R.id.searchButton);
         // Create a PopupWindow
         searchPopupWindow = new PopupWindow(searchPopupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // Show the PopupWindow
         searchPopupWindow.showAtLocation(searchButton, Gravity.CENTER, 0, 0);
-    }
+    
+        // Dismiss the blur view when the popup is dismissed
+        searchPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                rootView.removeView(blurView);
+            }
+        });
+    }    
 
     private void dismissSearchPopup() {
         if (searchPopupWindow != null && searchPopupWindow.isShowing()) {
@@ -1007,13 +1021,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 dayTextView.setTextColor(Color.BLACK);
                 dayTextView.setTypeface(null, Typeface.BOLD);
                 forecastItemLayout.addView(dayTextView);
-
-                // ! Make icons instead here
-//                TextView weatherTextView = new TextView(this);
-//                weatherTextView.setText(forecastInfo.get("weather").get(i));
-//                weatherTextView.setTextSize(16);
-//                weatherTextView.setTextColor(Color.BLACK);
-//                forecastItemLayout.addView(weatherTextView);
 
                 ImageView weatherIconView = new ImageView(this);
 

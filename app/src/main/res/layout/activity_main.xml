@@ -40,13 +40,13 @@
                     android:layout_height="wrap_content"
                     android:text="@string/location"
                     android:visibility="gone"
-                    android:layout_marginEnd="30dp"
+                    android:layout_marginEnd="15dp"
                     android:textSize="20sp" />
 
                 <Button
                     android:id="@+id/searchButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="125dp"
+                    android:layout_height="45dp"
                     android:text="@string/search" />
 
             </LinearLayout>
@@ -103,9 +103,8 @@
                 <!-- Navigate Button -->
                 <Button
                     android:id="@+id/navigateButton"
-                    android:layout_width="128dp"
-                    android:layout_height="36dp"
-
+                    android:layout_width="125dp"
+                    android:layout_height="45dp"
                     android:layout_gravity="end"
                     android:layout_marginTop="16dp"
                     android:text="@string/navigate" />
@@ -119,7 +118,7 @@
                 android:layout_below="@id/currentWeather"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/smaller_border"
-                android:padding="25dp">
+                android:padding="5dp">
 
                 <TextView
                     android:id="@+id/separationText"
@@ -148,12 +147,13 @@
 
                 <Button
                     android:id="@+id/seeFullForecastButton"
-                    android:layout_width="128dp"
-                    android:layout_height="36dp"
+                    android:layout_width="125dp"
+                    android:layout_height="45dp"
                     android:layout_below="@id/ForecastScrollView"
-                    android:layout_gravity="bottom|end"
-                    android:layout_marginStart="16dp"
+                    android:layout_gravity="end"
+                    android:layout_marginStart="215dp"
                     android:layout_marginLeft="16dp"
+                    android:layout_marginTop="-7dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginRight="16dp"
                     android:text="@string/navigate"
@@ -164,18 +164,18 @@
             <Button
                 android:id="@+id/prevButton"
                 android:layout_width="125dp"
-                android:layout_height="36dp"
+                android:layout_height="45dp"
                 android:layout_below="@id/forecast"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="5dp"
                 android:text="@string/previous" />
 
             <Button
                 android:id="@+id/nextButton"
                 android:layout_width="125dp"
-                android:layout_height="36dp"
+                android:layout_height="45dp"
                 android:layout_below="@id/forecast"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="5dp"
                 android:text="@string/next" />
 
             <!-- Add this under your current layout -->
