@@ -1,3 +1,8 @@
+//
+// Name                 Benson Mugure
+// Student ID           S2038770
+// Programme of Study   Computing
+//
 package org.me.gcu.benson_mugure_s2038770;
 
 import android.os.Bundle;
@@ -9,6 +14,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Map;
 
+/**
+ * 
+ * This class is responsible for displaying the current weather observation data.
+ * It receives the observation data and location from the MainActivity and displays it in a TextView.
+ * The user can go back to the MainActivity by clicking the back button.
+ * 
+ * Student ID: S2038770
+ * 
+ */
 public class current_weather extends AppCompatActivity {
 
     @Override

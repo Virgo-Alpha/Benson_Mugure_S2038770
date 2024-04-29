@@ -76,6 +76,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+/**
+ * 
+ * This class is responsible for displaying the main weather forecast data.
+ * It fetches and displays the forecast data for the default location.
+ * The user can navigate to the current weather observation screen, full forecast screen, or change the location.
+ * 
+ * Student ID: S2038770
+ * 
+ */
+
 public class MainActivity extends AppCompatActivity implements OnClickListener, OnMapReadyCallback {
     private TextView forecastDisplay;
     // private TextView observationDisplay; // Add TextView for observation display

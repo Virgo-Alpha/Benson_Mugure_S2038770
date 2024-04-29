@@ -1,3 +1,8 @@
+//
+// Name                 Benson Mugure
+// Student ID           S2038770
+// Programme of Study   Computing
+//
 package org.me.gcu.benson_mugure_s2038770;
 
 import android.content.DialogInterface;
@@ -30,6 +35,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Locale;
+
+/**
+ * 
+ * This class is responsible for displaying the settings screen.
+ * The user can set the refresh time and enable dark mode.
+ * 
+ * Student ID: S2038770
+ * 
+ */
 
 public class SettingsActivity extends AppCompatActivity {
 

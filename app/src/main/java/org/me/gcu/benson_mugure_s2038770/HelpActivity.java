@@ -1,3 +1,8 @@
+//
+// Name                 Benson Mugure
+// Student ID           S2038770
+// Programme of Study   Computing
+//
 package org.me.gcu.benson_mugure_s2038770;
 
 import android.content.DialogInterface;
@@ -19,6 +24,14 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
+/**
+ * 
+ * This class is responsible for displaying the help screen.
+ * The user can navigate to the home screen, settings screen, or exit the application.
+ * 
+ * Student ID: S2038770
+ * 
+ */
 public class HelpActivity extends AppCompatActivity {
 
     @Override
