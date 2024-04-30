@@ -1,26 +1,41 @@
-# To Run Android Studio
+# GCU Weather App User Manual
 
-```bash
-cd ~/../../usr/local/android-studio/bin && sudo ./studio.sh
-```
+Welcome to the GCU Weather App! This user manual will guide you through the features and functionalities of our app.
 
-Steps
--- 1. Check for extra data from the latest observations; Log instead of just running the app
-2. Decouple the parsing from the main java file
--- 3. Create an elaborate data structure that will have all the data needed from both feeds
--- 5. Decouple each element of the xml to an object in the data structure
--- 4. Design the outline with rectangles (upload pic and ask for xml code)
--- 4. Create the second page for the 3-day forecast
--- 4. Add the icons and the map
--- 5. Make the 3-day forecasts as links to child pages
--- 5. Landscape view ... // Debug this
--- 6. No internet rxn
--- 7. Settings for autorefresh on load and manually set by user and  other settings
--- 8. Dark mode
-9. WiFi debugging (on phone)
--- 10. Side menu: Home, Settings (Timepicker, dark mode, language), Help, Exit
--- 11. Search functionality
-12. Unit tests
-13. Generate .apk file: [course](https://www.linkedin.com/learning/android-studio-essential-training-14266841/configure-android-studio?u=39683156)
-14. Documented testing strategy
-15. Record video of the app in action
+## Getting Started
+
+Upon loading the app, you will be greeted with the home page, where you can access the current weather, three-day forecast, and a map displaying the location. You can navigate through different locations by using the next and previous buttons, and the information will update accordingly.
+
+### Weather Information
+
+- **Current Weather:** Press the "See More" button to view more details about the current weather.
+- **Three-Day Forecast:** Similarly, you can view more information about the three-day weather forecast by pressing the "See More" button in that section.
+
+### Available Locations
+
+The app provides weather information for the following locations, which are where GCU has its campuses:
+- New York
+- Bangladesh
+- Glasgow
+- Mauritius
+- Oman
+
+### Side Menu
+
+Access the side menu by clicking the icon located at the top-left corner of the screen. The side menu provides the following options:
+
+- **Home:** Return to the home page.
+- **Settings:** Adjust app settings, including dark or light mode and refresh intervals.
+- **Help:** Access additional assistance or information.
+- **Notifications:** Configure notifications for updates or alerts.
+- **Exit:** Exit the app. Confirm your choice in the pop-up dialog.
+
+## Search Functionality
+
+The search bar allows you to search for weather information in specific locations. Enter the name of the location you want to search for, and the app will display the weather information for that location.
+
+## Testing Environment
+
+For the best experience, we recommend testing the app on a Pixel 3a device. This device provides optimal performance and display compatibility with our app.
+
+Thank you for choosing the GCU Weather App! If you have any further questions or feedback, please don't hesitate to contact us. Enjoy using the app!
